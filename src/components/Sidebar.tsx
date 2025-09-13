@@ -1,4 +1,4 @@
-import { Users, ShieldCheck } from "lucide-react";
+import { Users, ShieldCheck, Gift } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -8,6 +8,7 @@ interface SidebarProps {
 const navItems = [
   { id: "users", label: "User Management", icon: Users },
   { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
+  { id: "nftRequests", label: "NFT Minting Requests", icon: Gift },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => (

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Header from "../components/Header";
-import UserTable from "../components/UserTable";
-import KYCQueue from "../components/KYCQueue";
+import UserTable from "../tabs/UserTable";
+import KYCQueue from "../tabs/KYCQueue";
 import Sidebar from "../components/Sidebar";
+import NFTRequests from "../tabs/NFTRequests";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -15,6 +16,7 @@ const AdminDashboard = () => {
         <main className="flex-1 overflow-y-auto p-8 space-y-6">
           {activeTab === "users" && <UserTable />}
           {activeTab === "kyc" && <KYCQueue />}
+          {activeTab === "nftRequests" && <NFTRequests />} {/* New tab content */}
         </main>
       </div>
     </div>
