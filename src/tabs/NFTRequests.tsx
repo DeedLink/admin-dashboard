@@ -16,7 +16,7 @@ const NFTRequests = () => {
   const [requests, setRequests] = useState<Request[]>([]);
 
   useEffect(() => {
-    // In real app, fetch pending requests from backend
+    // fetch pending requests from backend
     setRequests(dummyRequests);
   }, []);
 
