@@ -17,10 +17,3 @@ export async function connectWallet() {
     return null;
   }
 }
-
-export async function getSignature(message: string) {
-  const wallet = await connectWallet();
-  if (!wallet) throw new Error("Wallet not connected");
-  const signature = await wallet.signer.signMessage(message);
-  return signature;
-}

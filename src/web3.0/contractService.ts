@@ -36,34 +36,22 @@ async function getFractionalTokenContract(address: string) {
 }
 
 // -------------------- PropertyNFT Functions --------------------
-export async function mintNFT(to: string, ipfsuri: string, dburi: string) {
+export async function mintNFT(to: string, uri: string) {
   const nft = await getPropertyNFTContract();
-
-  const tx = await nft.mintProperty(to, ipfsuri, dburi);
-  const receipt = await tx.wait();
-
-  let tokenId: string | undefined;
-
-  for (const log of receipt.logs) {
-    let parsed: ethers.LogDescription | null = null;
-
-    try {
-      parsed = nft.interface.parseLog(log);
-    } catch {
-    }
-
-    if (parsed && parsed.name === "Transfer") {
-      tokenId = parsed.args.tokenId.toString();
-      break;
-    }
-  }
-  return { tokenId, txHash: (receipt as any).hash ?? (receipt as any).transactionHash };
+  const tx = await nft.mintProperty(to, uri);
+  return await tx.wait();
 }
 
 export async function approveNFT(to: string, tokenId: number) {
   const nft = await getPropertyNFTContract();
   const tx = await nft.approve(to, tokenId);
   return await tx.wait();
+}
+
+export async function getNFTPropertyDetails(tokenId: number) {
+  const nft = await getPropertyNFTContract();
+  const [owner, ipfsURI, dbURI] = await nft.getProperty(tokenId);
+  return { owner, ipfsURI, dbURI };
 }
 
 export async function getNFTURI(tokenId: number) {
@@ -102,4 +90,31 @@ export async function transferFT(tokenAddress: string, to: string, amount: numbe
 export async function getFTBalance(tokenAddress: string, account: string) {
   const ft = await getFractionalTokenContract(tokenAddress);
   return await ft.balanceOf(account);
+}
+
+// After Multisig
+
+// Sign property (surveyor, notary, ivsl depending on role)
+export async function signProperty(tokenId: number) {
+  const nft = await getPropertyNFTContract();
+  const tx = await nft.signProperty(tokenId);
+  return await tx.wait();
+}
+
+// Get signing status
+export async function getSignatures(tokenId: number) {
+  const nft = await getPropertyNFTContract();
+  const surveyor = await nft.isSignedBySurveyor(tokenId);
+  const notary = await nft.isSignedByNotary(tokenId);
+  const ivsl = await nft.isSignedByIVSL(tokenId);
+  const fully = await nft.isFullySigned(tokenId);
+
+  return { surveyor, notary, ivsl, fully };
+}
+
+// Get Metadata
+export async function getMetadata(tokenId: number): Promise<{ ipfsHash: string; dbHash: string }> {
+  const nft = await getPropertyNFTContract();
+  const [ipfsHash, dbHash] = await nft.getMetadata(tokenId);
+  return { ipfsHash, dbHash };
 }
