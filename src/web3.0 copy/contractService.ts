@@ -118,20 +118,3 @@ export async function getMetadata(tokenId: number): Promise<{ ipfsHash: string; 
   const [ipfsHash, dbHash] = await nft.getMetadata(tokenId);
   return { ipfsHash, dbHash };
 }
-
-// Generic role grant
-export async function addSigner(role: "SURVEYOR" | "NOTARY" | "IVSL", account: string) {
-  const nft = await getPropertyNFTContract();
-  
-  let roleHash: string;
-  if (role === "SURVEYOR") {
-    roleHash = await nft.SURVEYOR_ROLE();
-  } else if (role === "NOTARY") {
-    roleHash = await nft.NOTARY_ROLE();
-  } else {
-    roleHash = await nft.IVSL_ROLE();
-  }
-
-  const tx = await nft.grantRole(roleHash, account);
-  return await tx.wait();
-}
