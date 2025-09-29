@@ -4,6 +4,7 @@ import UserTable from "../tabs/UserTable";
 import KYCQueue from "../tabs/KYCQueue";
 import Sidebar from "../components/Sidebar";
 import NFTRequests from "../tabs/NFTRequests";
+import SurveyorRequests from "../tabs/SurveyorRequests";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -16,7 +17,8 @@ const AdminDashboard = () => {
         <main className="flex-1 overflow-y-auto p-8 space-y-6">
           {activeTab === "users" && <UserTable />}
           {activeTab === "kyc" && <KYCQueue />}
-          {activeTab === "nftRequests" && <NFTRequests />} {/* New tab content */}
+          {activeTab === "nftRequests" && <NFTRequests />}
+          {activeTab === "surveyor" && <SurveyorRequests/>}
         </main>
       </div>
     </div>
