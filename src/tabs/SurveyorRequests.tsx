@@ -17,17 +17,11 @@ const SurveyorRequests = () => {
     try {
       setLoading(true);
       setError(null);
-      
       const users = await getUsers();
-      
-      const surveyorUsers = users.filter(user => 
-        user.role?.toUpperCase() === 'SURVEYOR'
-      );
-      
+      const surveyorUsers = users.filter(user => user.role?.toUpperCase() === 'SURVEYOR');
       setSurveyors(surveyorUsers);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load surveyors');
-      console.error("Error fetching surveyors:", err);
     } finally {
       setLoading(false);
     }
@@ -39,10 +33,8 @@ const SurveyorRequests = () => {
       const tx = await addSigner("SURVEYOR", address);
       console.log("Signer added:", tx);
       await fetchSurveyors();
-      
       alert(`Successfully added surveyor signer: ${address}`);
     } catch (err) {
-      console.error("Error adding signer:", err);
       alert(`Failed to add signer: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setProcessingAddress(null);
@@ -74,10 +66,7 @@ const SurveyorRequests = () => {
   return (
     <div className="w-full h-full p-6 bg-gradient-to-br from-green-50 to-green-100">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Surveyor Requests
-        </h2>
-        
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Surveyor Requests</h2>
         {surveyors.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
             No surveyor requests found
@@ -90,17 +79,11 @@ const SurveyorRequests = () => {
                 className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow"
               >
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-800">
-                    {surveyor.name || 'Unknown Surveyor'}
-                  </div>
+                  <div className="font-semibold text-gray-800">{surveyor.name || 'Unknown Surveyor'}</div>
                   {surveyor.email && (
-                    <div className="text-sm text-gray-600 mt-1">
-                      {surveyor.email}
-                    </div>
+                    <div className="text-sm text-gray-600 mt-1">{surveyor.email}</div>
                   )}
-                  <div className="text-xs text-gray-500 mt-2 font-mono">
-                    {surveyor.walletAddress}
-                  </div>
+                  <div className="text-xs text-gray-500 mt-2 font-mono">{surveyor.walletAddress}</div>
                   {surveyor.kycStatus && (
                     <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${
                       surveyor.kycStatus === "verified"
@@ -113,7 +96,6 @@ const SurveyorRequests = () => {
                     </span>
                   )}
                 </div>
-                
                 <button 
                   onClick={() => handleAddSigner(surveyor.walletAddress || "")}
                   disabled={processingAddress === surveyor.walletAddress}
