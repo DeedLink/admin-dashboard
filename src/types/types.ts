@@ -10,6 +10,11 @@ export interface User {
   kycStatus: "pending" | "verified" | "rejected";
   role: "user" | "registrar" | "admin" | "surveyor" | "notary" | "IVSL";
   createdAt: string;
+  kycDocuments?: {
+    nicFrontSide: string,
+    nicBackSide: string,
+    userFrontImage: string,
+  };
   updatedAt: string;
 }
 

@@ -3,6 +3,7 @@ import { getItem } from "../storage/storage";
 import type { User, VerifyKYCRequest } from "../types/types";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL || "http://localhost:5000/api/users";
+const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL || "http://localhost:4000/file";
 
 const api = axios.create({
   baseURL: USER_API_URL,
@@ -81,3 +82,17 @@ export const uploadFile = async (file: File): Promise<{ uri: string }> => {
   });
   return res.data;
 }
+
+// IPFS
+// Fetch the real file URL (signed URL or local fallback)
+export const getFileUrl = async (filename: string): Promise<string> => {
+  if (filename.startsWith("http")) return filename;
+
+  try {
+    const res = await axios.get(`${BACKEND_FILE_URL}/${filename}`);
+    return res.data.url || `${BACKEND_FILE_URL}/${filename}`;
+  } catch (err) {
+    console.error("Failed to fetch file URL:", err);
+    return `${BACKEND_FILE_URL}/${filename}`;
+  }
+};
