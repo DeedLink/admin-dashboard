@@ -9,7 +9,9 @@ const navItems = [
   { id: "users", label: "User Management", icon: Users },
   { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
   { id: "nftRequests", label: "NFT Minting Requests", icon: Gift },
-  { id: "surveyor", label: "Surveyor Requests", icon: Users}
+  { id: "surveyor", label: "Surveyor Requests", icon: Users},
+  { id: "ivsl", label: "IVSL Requests", icon: Users},
+  { id: "notary", label: "Notary Requests", icon: Users}
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => (
