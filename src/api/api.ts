@@ -1,6 +1,6 @@
 import axios, { type AxiosResponse } from "axios";
 import { getItem } from "../storage/storage";
-import type { User } from "../types/types";
+import type { User, VerifyKYCRequest } from "../types/types";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL || "http://localhost:5000/api/users";
 
@@ -22,6 +22,18 @@ api.interceptors.request.use((config) => {
 // Get profile (protected)
 export const getProfile = async (): Promise<User> => {
   const res: AxiosResponse<User> = await api.get("/profile");
+  return res.data;
+};
+
+// verify KYC
+export const verifyKYC = async (
+  id: string,
+  data: VerifyKYCRequest
+): Promise<{ message: string; user: User }> => {
+  const res: AxiosResponse<{ message: string; user: User }> = await api.patch(
+    `/${id}/verify-kyc`,
+    data
+  );
   return res.data;
 };
 

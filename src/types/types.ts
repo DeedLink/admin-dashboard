@@ -27,6 +27,11 @@ export interface userStatusResponse {
   }
 }
 
+export interface VerifyKYCRequest {
+  status: "verified" | "rejected";
+}
+
+
 export type UserStatus = "pending" | "verified" | "rejected";
 
 export type StorageType = "local" | "session";
