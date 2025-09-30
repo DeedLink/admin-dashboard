@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search, Eye, Download, FileText, User as UserIcon, Mail, Wallet, X, Loader2, AlertCircle, Filter } from "lucide-react";
 import { listPendingKYC, verifyKYC, getFileUrl } from '../api/api';
-import type { User, VerifyKYCRequest } from '../types/types';
+import type { User } from '../types/types';
 
 const KYCQueue = () => {
   const [kycRequests, setKycRequests] = useState<User[]>([]);
@@ -100,7 +100,7 @@ const KYCQueue = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-full bg-slate-50 flex items-center justify-center p-4">
       <div className="bg-white border border-red-200 rounded-xl p-8 text-center max-w-md shadow-sm">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-slate-900 mb-2">Error Loading Data</h3>
@@ -111,7 +111,7 @@ const KYCQueue = () => {
   );
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-full">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">

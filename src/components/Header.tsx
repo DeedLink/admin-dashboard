@@ -11,11 +11,7 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full bg-black text-white px-6 sm:px-12 py-4 flex justify-between items-center border-b border-gray-800 shadow-md">
-      <h1 className="text-xl sm:text-2xl font-bold tracking-wide select-none">
-        DeedLink Admin
-      </h1>
-
+    <header className="w-full bg-black text-white px-6 sm:px-12 py-4 flex justify-end items-center border-b border-gray-800 shadow-md">
       <div className="flex items-center space-x-4">
         <button
           onClick={connect}
