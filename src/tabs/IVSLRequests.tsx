@@ -79,9 +79,9 @@ const IVSLRequests = () => {
   }
 
   return (
-    <div className="w-full h-full p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+    <div className="w-full h-full p-6">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-bold text-white mb-8">
           IVSL Requests
         </h2>
 

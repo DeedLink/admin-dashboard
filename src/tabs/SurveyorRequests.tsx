@@ -64,9 +64,9 @@ const SurveyorRequests = () => {
   }
 
   return (
-    <div className="w-full h-full p-6 bg-gradient-to-br from-green-50 to-green-100">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Surveyor Requests</h2>
+    <div className="w-full h-full p-6">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-white mb-6">Surveyor Requests</h2>
         {surveyors.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
             No surveyor requests found
