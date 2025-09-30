@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
 
   return (
-    <div className="flex h-screen bg-gray-950">
+    <div className="flex h-screen bg-gray-950 font-spectral">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex-1 flex flex-col">
         <Header />
