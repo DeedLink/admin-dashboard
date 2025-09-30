@@ -5,6 +5,8 @@ import KYCQueue from "../tabs/KYCQueue";
 import Sidebar from "../components/Sidebar";
 import NFTRequests from "../tabs/NFTRequests";
 import SurveyorRequests from "../tabs/SurveyorRequests";
+import IVSLRequests from "../tabs/IVSLRequests";
+import NotaryRequests from "../tabs/NotaryRequests";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -19,6 +21,8 @@ const AdminDashboard = () => {
           {activeTab === "kyc" && <KYCQueue />}
           {activeTab === "nftRequests" && <NFTRequests />}
           {activeTab === "surveyor" && <SurveyorRequests/>}
+          {activeTab === "ivsl" && <IVSLRequests/>}
+          {activeTab === "notary" && <NotaryRequests/>}
         </main>
       </div>
     </div>
