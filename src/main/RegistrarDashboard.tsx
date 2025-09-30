@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import KYCQueue from "../tabs/KYCQueue";
 import Sidebar from "../components/Sidebar";
 import SurveyorRequests from "../tabs/SurveyorRequests";
 import IVSLRequests from "../tabs/IVSLRequests";
 import NotaryRequests from "../tabs/NotaryRequests";
+import { useLoader } from "../contexts/LoaderContext";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("kyc");
+  const { showLoader, hideLoader } = useLoader();
+
+  useEffect(()=>{
+    showLoader();
+
+    setTimeout(()=>{
+      hideLoader();
+    },500);
+  },[activeTab])
 
   return (
-    <div className="flex h-screen bg-gray-950 font-spectral">
+    <div className="flex h-screen bg-black font-spectral">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex-1 flex flex-col">
         <Header />

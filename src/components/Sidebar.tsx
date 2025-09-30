@@ -9,50 +9,37 @@ const navItems = [
   { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
   { id: "surveyor", label: "Surveyor Requests", icon: MapPin },
   { id: "ivsl", label: "IVSL Requests", icon: Building2 },
-  { id: "notary", label: "Notary Requests", icon: FileSignature }
+  { id: "notary", label: "Notary Requests", icon: FileSignature },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => (
-  <aside className="w-72 bg-gradient-to-b from-black via-gray-900 to-black text-white h-screen shadow-2xl p-6 rounded-tr-3xl rounded-br-3xl flex flex-col justify-between border-r border-gray-800">
+  <div className="h-screen w-64 bg-black text-gray-100 flex flex-col justify-between p-4 border-r-[1px] border-r-white/20">
     <div>
-      <h2 className="text-3xl font-extrabold mb-12 text-center tracking-wide bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 text-transparent bg-clip-text drop-shadow-md">
-        Registrar Admin
-      </h2>
-      <ul className="space-y-3">
+      <h2 className="text-lg font-bold mb-8 px-2">Registrar Admin</h2>
+      <nav className="space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
-            <li
+            <div
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`group flex items-center gap-4 p-2 rounded-xl cursor-pointer transition-all duration-300 font-medium relative overflow-hidden ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
                 activeTab === item.id
-                  ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow-lg scale-[1.02]"
-                  : "hover:bg-gray-800/60"
+                  ? "bg-green-600 text-white"
+                  : "hover:bg-gray-800 text-gray-300"
               }`}
             >
-              <div
-                className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 ${
-                  activeTab === item.id
-                    ? "bg-white/20"
-                    : "bg-gray-800 group-hover:bg-gray-700"
-                }`}
-              >
-                <Icon size={20} />
-              </div>
-              <span className="tracking-wide">{item.label}</span>
-              {activeTab === item.id && (
-                <span className="absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-green-400 to-emerald-600 rounded-r-lg" />
-              )}
-            </li>
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </div>
           );
         })}
-      </ul>
+      </nav>
     </div>
-    <div className="text-xs text-gray-500 text-center mt-8">
+    <footer className="text-xs text-gray-500 px-2">
       © {new Date().getFullYear()} DeedLink Admin
-    </div>
-  </aside>
+    </footer>
+  </div>
 );
 
 export default Sidebar;

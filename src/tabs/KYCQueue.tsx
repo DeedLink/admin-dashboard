@@ -111,8 +111,8 @@ const KYCQueue = () => {
   );
 
   return (
-    <div className="min-h-full">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="min-h-full p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-6">

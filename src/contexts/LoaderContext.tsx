@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, type ReactNode } from "react";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import Loader from "../components/Loader";
 
 interface LoaderContextProps {
   showLoader: () => void;
@@ -27,11 +27,7 @@ export const LoaderProvider: React.FC<LoaderProviderProps> = ({ children }) => {
     <LoaderContext.Provider value={{ showLoader, hideLoader }}>
       {children}
       {loading && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="animate-spin text-6xl text-green-400">
-            <AiOutlineLoading3Quarters />
-          </div>
-        </div>
+        <Loader/>
       )}
     </LoaderContext.Provider>
   );
