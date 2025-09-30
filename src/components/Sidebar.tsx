@@ -1,4 +1,4 @@
-import { Users, ShieldCheck, Gift, MapPin, FileSignature, Building2 } from "lucide-react";
+import { ShieldCheck, MapPin, FileSignature, Building2 } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -6,9 +6,7 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: "users", label: "User Management", icon: Users },
   { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
-  { id: "nftRequests", label: "NFT Minting Requests", icon: Gift },
   { id: "surveyor", label: "Surveyor Requests", icon: MapPin },
   { id: "ivsl", label: "IVSL Requests", icon: Building2 },
   { id: "notary", label: "Notary Requests", icon: FileSignature }
