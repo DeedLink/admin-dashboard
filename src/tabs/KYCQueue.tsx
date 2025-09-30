@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Search, Eye, Download, FileText, User as UserIcon, Mail, Wallet, Calendar, X, Loader2, AlertCircle, Filter } from "lucide-react";
+import { CheckCircle, XCircle, Search, Eye, Download, FileText, User as UserIcon, Mail, Wallet, X, Loader2, AlertCircle, Filter } from "lucide-react";
 import { listPendingKYC, verifyKYC } from '../api/api';
 import type { User, VerifyKYCRequest } from '../types/types';
 
