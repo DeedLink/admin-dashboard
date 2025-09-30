@@ -207,7 +207,7 @@ const KYCQueue = () => {
         )}
 
         {selectedUser && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-xl">
               <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div><h3 className="text-lg font-semibold text-slate-900">Document Review</h3><p className="text-xs text-slate-500 mt-0.5">Verify identity credentials</p></div>
@@ -228,7 +228,7 @@ const KYCQueue = () => {
                 <div>
                   <h4 className="text-sm font-semibold text-slate-900 mb-3">Documents</h4>
                   {selectedUser.kycDocuments ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       {Object.entries(selectedUser.kycDocuments).map(([key, filename]) => (
                         <div key={key} className="bg-slate-50 border border-slate-200 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-3">
