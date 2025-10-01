@@ -135,3 +135,30 @@ export async function addSigner(role: "SURVEYOR" | "NOTARY" | "IVSL", account: s
   const tx = await nft.grantRole(roleHash, account);
   return await tx.wait();
 }
+
+// Check if a wallet has a specific role
+export async function hasSignerRole(role: "SURVEYOR" | "NOTARY" | "IVSL", account: string): Promise<boolean> {
+  const nft = await getPropertyNFTContract();
+
+  let roleHash: string;
+  if (role === "SURVEYOR") {
+    roleHash = await nft.SURVEYOR_ROLE();
+  } else if (role === "NOTARY") {
+    roleHash = await nft.NOTARY_ROLE();
+  } else {
+    roleHash = await nft.IVSL_ROLE();
+  }
+
+  return await nft.hasRole(roleHash, account);
+}
+
+// Get all roles of a wallet
+export async function getRolesOf(account: string): Promise<{ surveyor: boolean; notary: boolean; ivsl: boolean }> {
+  const nft = await getPropertyNFTContract();
+
+  const surveyor = await nft.hasRole(await nft.SURVEYOR_ROLE(), account);
+  const notary = await nft.hasRole(await nft.NOTARY_ROLE(), account);
+  const ivsl = await nft.hasRole(await nft.IVSL_ROLE(), account);
+
+  return { surveyor, notary, ivsl };
+}
