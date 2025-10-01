@@ -104,3 +104,33 @@
   font-style: italic;
   font-display: swap;
 }
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  border: 3px solid #00420A;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #f0f0f0;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #58ff71 #000000;
+}
+
+.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}

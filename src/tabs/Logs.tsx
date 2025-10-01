@@ -13,6 +13,13 @@ type LogEntry = {
   blockNumber: number;
 };
 
+function replacer(_key: string, value: any) {
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+  return value;
+}
+
 const Logs = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
@@ -30,22 +37,30 @@ const Logs = () => {
       factoryContract = new ethers.Contract(FACTORY_ADDRESS, FractionalTokenFactoryABI.abi, signer);
 
       const latestBlock = await provider.getBlockNumber();
+      const fromBlock = Math.max(0, latestBlock - 2000);
 
-      const pastTransfers = await nftContract.queryFilter("Transfer", 0, latestBlock);
-      const pastFractions = await factoryContract.queryFilter("FractionTokenCreated", 0, latestBlock);
-      const pastRoles = await nftContract.queryFilter("RoleGranted", 0, latestBlock);
-      const pastSigns = await nftContract.queryFilter("PropertySigned", 0, latestBlock).catch(() => []); 
+      const pastTransfers = await nftContract.queryFilter("Transfer", fromBlock, latestBlock);
+      const pastFractions = await factoryContract.queryFilter("FractionTokenCreated", fromBlock, latestBlock);
 
       const formattedPast = [
-        ...[...pastTransfers, ...pastFractions, ...pastRoles, ...pastSigns].map(e => {
+        ...pastTransfers.map(e => {
           const ev = e as EventLog;
           return {
             event: ev.eventName,
             args: ev.args,
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
+            blockNumber: ev.blockNumber
           };
         }),
+        ...pastFractions.map(e => {
+          const ev = e as EventLog;
+          return {
+            event: ev.eventName,
+            args: ev.args,
+            txHash: ev.transactionHash,
+            blockNumber: ev.blockNumber
+          };
+        })
       ];
 
       setLogs(prev => [...formattedPast.reverse(), ...prev]);
@@ -57,9 +72,9 @@ const Logs = () => {
             event: ev.eventName,
             args: { from, to, tokenId: tokenId.toString() },
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
+            blockNumber: ev.blockNumber
           },
-          ...prev,
+          ...prev
         ]);
       });
 
@@ -70,35 +85,9 @@ const Logs = () => {
             event: ev.eventName,
             args: { propertyId: propertyId.toString(), tokenAddress },
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
+            blockNumber: ev.blockNumber
           },
-          ...prev,
-        ]);
-      });
-
-      nftContract.on("RoleGranted", (role, account, sender, event) => {
-        const ev = event as EventLog;
-        setLogs(prev => [
-          {
-            event: ev.eventName,
-            args: { role, account, sender },
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-          },
-          ...prev,
-        ]);
-      });
-
-      nftContract.on("PropertySigned", (tokenId, signer, role, event) => {
-        const ev = event as EventLog;
-        setLogs(prev => [
-          {
-            event: ev.eventName,
-            args: { tokenId: tokenId.toString(), signer, role },
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-          },
-          ...prev,
+          ...prev
         ]);
       });
     }
@@ -122,7 +111,7 @@ const Logs = () => {
             <div key={idx} className="bg-gray-800 p-3 rounded-lg shadow">
               <p className="font-semibold text-blue-400">{log.event}</p>
               <pre className="text-sm text-gray-300 whitespace-pre-wrap">
-                {JSON.stringify(log.args, null, 2)}
+                {JSON.stringify(log.args, replacer, 2)}
               </pre>
               <p className="text-xs text-gray-500">
                 Block: {log.blockNumber} | Tx:{" "}
