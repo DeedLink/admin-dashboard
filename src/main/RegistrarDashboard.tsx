@@ -6,6 +6,7 @@ import SurveyorRequests from "../tabs/SurveyorRequests";
 import IVSLRequests from "../tabs/IVSLRequests";
 import NotaryRequests from "../tabs/NotaryRequests";
 import { useLoader } from "../contexts/LoaderContext";
+import Logs from "../tabs/Logs";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("kyc");
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
           {activeTab === "surveyor" && <SurveyorRequests/>}
           {activeTab === "ivsl" && <IVSLRequests/>}
           {activeTab === "notary" && <NotaryRequests/>}
+          {activeTab === "logs" && <Logs/>}
         </main>
       </div>
     </div>

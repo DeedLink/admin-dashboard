@@ -1,4 +1,4 @@
-import { ShieldCheck, MapPin, FileSignature, Building2 } from "lucide-react";
+import { ShieldCheck, MapPin, FileSignature, Building2, Book } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -10,6 +10,7 @@ const navItems = [
   { id: "surveyor", label: "Surveyor Requests", icon: MapPin },
   { id: "ivsl", label: "IVSL Requests", icon: Building2 },
   { id: "notary", label: "Notary Requests", icon: FileSignature },
+  { id: "logs", label: "Logs", icon: Book },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => (
