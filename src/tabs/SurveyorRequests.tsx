@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { addSigner } from "../web3.0/contractService";
+import { addSigner, getRolesOf } from "../web3.0/contractService";
 import type { User } from "../types/types";
 import { getUsers } from '../api/api';
 
@@ -8,6 +8,7 @@ const SurveyorRequests = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingAddress, setProcessingAddress] = useState<string | null>(null);
+  const [rolesMap, setRolesMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchSurveyors();
@@ -20,6 +21,16 @@ const SurveyorRequests = () => {
       const users = await getUsers();
       const surveyorUsers = users.filter(user => user.role?.toUpperCase() === 'SURVEYOR');
       setSurveyors(surveyorUsers);
+
+      const roles: Record<string, boolean> = {};
+      await Promise.all(surveyorUsers.map(async (u) => {
+        if (u.walletAddress) {
+          const walletRoles = await getRolesOf(u.walletAddress);
+          roles[u.walletAddress] = walletRoles.surveyor;
+        }
+      }));
+      setRolesMap(roles);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load surveyors');
     } finally {
@@ -73,42 +84,51 @@ const SurveyorRequests = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {surveyors.map((surveyor) => (
-              <div 
-                key={surveyor._id || surveyor.walletAddress} 
-                className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow"
-              >
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-800">{surveyor.name || 'Unknown Surveyor'}</div>
-                  {surveyor.email && (
-                    <div className="text-sm text-gray-600 mt-1">{surveyor.email}</div>
-                  )}
-                  <div className="text-xs text-gray-500 mt-2 font-mono">{surveyor.walletAddress}</div>
-                  {surveyor.kycStatus && (
-                    <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${
-                      surveyor.kycStatus === "verified"
-                        ? 'bg-green-100 text-green-800' 
-                        : surveyor.kycStatus === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {surveyor.kycStatus}
-                    </span>
-                  )}
-                </div>
-                <button 
-                  onClick={() => handleAddSigner(surveyor.walletAddress || "")}
-                  disabled={processingAddress === surveyor.walletAddress}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                    processingAddress === surveyor.walletAddress
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-green-500 hover:bg-green-600 cursor-pointer'
-                  } text-white`}
+            {surveyors.map((surveyor) => {
+              const wallet = surveyor.walletAddress || '';
+              const alreadyRole = rolesMap[wallet] || false;
+
+              return (
+                <div 
+                  key={surveyor._id || wallet} 
+                  className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow"
                 >
-                  {processingAddress === surveyor.walletAddress ? 'Processing...' : 'Add Signer'}
-                </button>
-              </div>
-            ))}
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800">{surveyor.name || 'Unknown Surveyor'}</div>
+                    {surveyor.email && (
+                      <div className="text-sm text-gray-600 mt-1">{surveyor.email}</div>
+                    )}
+                    <div className="text-xs text-gray-500 mt-2 font-mono">{wallet}</div>
+                    {surveyor.kycStatus && (
+                      <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${
+                        surveyor.kycStatus === "verified"
+                          ? 'bg-green-100 text-green-800' 
+                          : surveyor.kycStatus === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {surveyor.kycStatus}
+                      </span>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => handleAddSigner(wallet)}
+                    disabled={processingAddress === wallet || alreadyRole}
+                    className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                      processingAddress === wallet || alreadyRole
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-green-500 hover:bg-green-600 cursor-pointer'
+                    } text-white`}
+                  >
+                    {alreadyRole
+                      ? 'Already Added'
+                      : processingAddress === wallet
+                      ? 'Processing...'
+                      : 'Add Signer'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
