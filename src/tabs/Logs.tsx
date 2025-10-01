@@ -31,28 +31,21 @@ const Logs = () => {
 
       const latestBlock = await provider.getBlockNumber();
 
-      const pastTransfers = await nftContract.queryFilter("Transfer", latestBlock - 2000, latestBlock);
-      const pastFractions = await factoryContract.queryFilter("FractionTokenCreated", latestBlock - 2000, latestBlock);
+      const pastTransfers = await nftContract.queryFilter("Transfer", 0, latestBlock);
+      const pastFractions = await factoryContract.queryFilter("FractionTokenCreated", 0, latestBlock);
+      const pastRoles = await nftContract.queryFilter("RoleGranted", 0, latestBlock);
+      const pastSigns = await nftContract.queryFilter("PropertySigned", 0, latestBlock).catch(() => []); 
 
       const formattedPast = [
-        ...pastTransfers.map(e => {
+        ...[...pastTransfers, ...pastFractions, ...pastRoles, ...pastSigns].map(e => {
           const ev = e as EventLog;
           return {
             event: ev.eventName,
             args: ev.args,
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber
+            blockNumber: ev.blockNumber,
           };
         }),
-        ...pastFractions.map(e => {
-          const ev = e as EventLog;
-          return {
-            event: ev.eventName,
-            args: ev.args,
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber
-          };
-        })
       ];
 
       setLogs(prev => [...formattedPast.reverse(), ...prev]);
@@ -64,9 +57,9 @@ const Logs = () => {
             event: ev.eventName,
             args: { from, to, tokenId: tokenId.toString() },
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber
+            blockNumber: ev.blockNumber,
           },
-          ...prev
+          ...prev,
         ]);
       });
 
@@ -77,9 +70,35 @@ const Logs = () => {
             event: ev.eventName,
             args: { propertyId: propertyId.toString(), tokenAddress },
             txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber
+            blockNumber: ev.blockNumber,
           },
-          ...prev
+          ...prev,
+        ]);
+      });
+
+      nftContract.on("RoleGranted", (role, account, sender, event) => {
+        const ev = event as EventLog;
+        setLogs(prev => [
+          {
+            event: ev.eventName,
+            args: { role, account, sender },
+            txHash: ev.transactionHash,
+            blockNumber: ev.blockNumber,
+          },
+          ...prev,
+        ]);
+      });
+
+      nftContract.on("PropertySigned", (tokenId, signer, role, event) => {
+        const ev = event as EventLog;
+        setLogs(prev => [
+          {
+            event: ev.eventName,
+            args: { tokenId: tokenId.toString(), signer, role },
+            txHash: ev.transactionHash,
+            blockNumber: ev.blockNumber,
+          },
+          ...prev,
         ]);
       });
     }
