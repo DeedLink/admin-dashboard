@@ -1,9 +1,11 @@
 import { useWallet } from "../contexts/WalletContext";
 import { useState } from "react";
+import PassPopup from "./PassPopup";
 
 const Header = () => {
   const { account, connect, disconnect } = useWallet();
   const [isHovering, setIsHovering] = useState(false);
+  const [isPassOpen, setIsPassOpen] = useState(false);
 
   const formatAccount = (acc: string | null) => {
     if (!acc) return "Connect Wallet";
@@ -11,7 +13,8 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full bg-black text-white px-6 sm:px-12 py-4 flex justify-end items-center border-b border-gray-800 shadow-md">
+    <header className="w-full bg-black text-white px-6 sm:px-12 py-4 flex justify-between items-center border-b border-gray-800 shadow-md">
+      <button onClick={()=>setIsPassOpen(true)} className="border px-2 py-1 rounded-xl bg-gray-200 text-black cursor-pointer hover:bg-gray-300">Get Pass</button>
       <div className="flex items-center">
         {!account ? (
           <button
@@ -35,6 +38,11 @@ const Header = () => {
           </button>
         )}
       </div>
+      {
+        isPassOpen && (
+          <PassPopup onClose={()=>setIsPassOpen(false)}/>
+        )
+      }
     </header>
   );
 };

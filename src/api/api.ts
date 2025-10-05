@@ -96,3 +96,20 @@ export const getFileUrl = async (filename: string): Promise<string> => {
     return `${BACKEND_FILE_URL}/${filename}`;
   }
 };
+
+// -------------------- Admin OTP Flow --------------------
+
+// Request OTP for admin
+export const requestAdminOTP = async (walletAddress: string): Promise<{ walletAddress: string; status: string }> => {
+  const res: AxiosResponse<{ walletAddress: string; status: string }> = await api.get(`/admin/${walletAddress}`);
+  return res.data;
+};
+
+// Verify OTP and get JWT token
+export const verifyAdminOTP = async (walletAddress: string, otp: string): Promise<{ message: string; token: string; user: any }> => {
+  const res: AxiosResponse<{ message: string; token: string; user: any }> = await api.post("/admin/verify", {
+    walletAddress,
+    otp,
+  });
+  return res.data;
+};
