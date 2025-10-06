@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { requestAdminOTP, verifyAdminOTP } from "../api/api";
 import { useWallet } from "../contexts/WalletContext";
+import { useLogin } from "../contexts/LoginContext";
+import { setItem } from "../storage/storage";
 
 const PassPopup = ({ onClose }: { onClose: () => void }) => {
   const [pin, setPin] = useState<string>("");
@@ -8,6 +10,7 @@ const PassPopup = ({ onClose }: { onClose: () => void }) => {
   const [error, setError] = useState<string>("");
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const { login } = useLogin();
 
   const pinValidation = (value: string) => /^\d{6}$/.test(value);
 
@@ -45,7 +48,8 @@ const PassPopup = ({ onClose }: { onClose: () => void }) => {
     try {
       const res = await verifyAdminOTP(account || "", pin);
       console.log("Admin token:", res.token);
-      localStorage.setItem("token", `"${res.token}"`);
+      setItem("local", "token", res.token);
+      login(res.user);
       onClose();
     } catch (err: any) {
       console.error(err);

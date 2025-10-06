@@ -1,10 +1,13 @@
 import { LoaderProvider } from "./contexts/LoaderContext";
+import { LoginProvider } from "./contexts/LoginContext";
 import AdminDashboard from "./main/RegistrarDashboard";
 
 export default function App() {
   return (
-    <LoaderProvider>
-      <AdminDashboard/>
-    </LoaderProvider>
+    <LoginProvider>
+      <LoaderProvider>
+        <AdminDashboard/>
+      </LoaderProvider>
+    </LoginProvider>
   );
 }
