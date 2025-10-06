@@ -3,6 +3,7 @@ import { BrowserProvider, JsonRpcSigner } from "ethers";
 import { connectWallet } from "../web3.0/wallet";
 import { getItem, removeItem, setItem } from "../storage/storage";
 import { useToast } from "./ToastContext";
+import { useLogin } from "./LoginContext";
 
 interface WalletContextProps {
   account: string | null;
@@ -19,6 +20,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [provider, setProvider] = useState<BrowserProvider | null>(getItem("local", "provider"));
   const [signer, setSigner] = useState<JsonRpcSigner | null>(getItem("local", "signer"));
   const { showToast } = useToast();
+  const { logout } = useLogin();
 
   const connect = async () => {
     const res = await connectWallet();
@@ -38,6 +40,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setAccount(null);
     setProvider(null);
     setSigner(null);
+    logout();
     removeItem("local", "walletConnected");
     removeItem("local", "account");
     removeItem("local", "provider");
