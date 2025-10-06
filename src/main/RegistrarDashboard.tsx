@@ -16,11 +16,12 @@ const AdminDashboard = () => {
 
   useEffect(()=>{
     showLoader();
+    console.log(user);
 
     setTimeout(()=>{
       hideLoader();
     },500);
-  },[activeTab])
+  },[activeTab]);
 
   return (
     <div className="flex h-screen bg-black font-spectral">
@@ -28,7 +29,7 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         {
-          user?.token ? (
+          user?.role === "admin" ? (
             <main className="flex-1 overflow-y-auto p-8 space-y-6">
               {activeTab === "kyc" && <KYCQueue />}
               {activeTab === "surveyor" && <SurveyorRequests/>}
