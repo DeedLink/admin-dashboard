@@ -112,14 +112,14 @@ const NotaryRequests = () => {
                   </div>
                   <button
                     onClick={() => handleAddSigner(wallet)}
-                    disabled={processingAddress === wallet || alreadyRole}
+                    disabled={processingAddress === wallet || alreadyRole || notary.kycStatus != "verified"}
                     className={`px-6 py-2 rounded-lg font-medium text-white transition-all shadow-md ${
-                      processingAddress === wallet || alreadyRole
+                      processingAddress === wallet || alreadyRole || notary.kycStatus != "verified"
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
                     }`}
                   >
-                    {alreadyRole
+                    { alreadyRole
                       ? "Already Added"
                       : processingAddress === wallet
                       ? "Processing..."
