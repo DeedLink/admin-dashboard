@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { registerDepartmentUser } from "../api/api";
+import { useLoader } from "../contexts/LoaderContext";
+import { useToast } from "../contexts/ToastContext";
 
 const Regitration = () => {
   const [username, setUsername] = useState("");
@@ -7,9 +9,12 @@ const Regitration = () => {
   const [nic, setNic] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [role, setRole] = useState<"notary" | "surveyor" | "IVSL">("notary");
+  const { showLoader, hideLoader } = useLoader();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    showLoader();
     try {
       const response = await registerDepartmentUser(
         username,
@@ -25,9 +30,13 @@ const Regitration = () => {
       setNic("");
       setWalletAddress("");
       setRole("notary");
+
+      showToast("User registered successfully!", "success");
     } catch (error) {
       console.error("Error registering user:", error);
+      showToast("Failed to register user. Please try again.", "error");
     }
+    hideLoader();
   };
 
   return (
