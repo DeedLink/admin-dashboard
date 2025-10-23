@@ -20,7 +20,7 @@ const Regitration = () => {
         username,
         email,
         nic,
-        walletAddress,
+        walletAddress.toLowerCase(),
         role
       );
       console.log("User registered:", response.user);
