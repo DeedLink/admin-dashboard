@@ -113,3 +113,21 @@ export const verifyAdminOTP = async (walletAddress: string, otp: string): Promis
   });
   return res.data;
 };
+
+// -------------------- Department User Registration --------------------
+export const registerDepartmentUser = async (
+  name: string,
+  email: string,
+  nic: string,
+  walletAddress: string,
+  role: 'notary' | 'surveyor' | 'IVSL'
+): Promise<{ user: User }> => {
+  const res: AxiosResponse<{ user: User }> = await api.post("/register-department-user", {
+    name,
+    email,
+    nic,
+    walletAddress,
+    role
+  });
+  return res.data;
+};

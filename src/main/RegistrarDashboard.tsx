@@ -8,6 +8,7 @@ import NotaryRequests from "../tabs/NotaryRequests";
 import { useLoader } from "../contexts/LoaderContext";
 import Logs from "../tabs/Logs";
 import { useLogin } from "../contexts/LoginContext";
+import Regitration from "../tabs/Registration";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("kyc");
@@ -32,6 +33,7 @@ const AdminDashboard = () => {
           user?.role === "admin" ? (
             <main className="flex-1 overflow-y-auto p-8 space-y-6">
               {activeTab === "kyc" && <KYCQueue />}
+              {activeTab === "Regitration"  && <Regitration/>}
               {activeTab === "surveyor" && <SurveyorRequests/>}
               {activeTab === "ivsl" && <IVSLRequests/>}
               {activeTab === "notary" && <NotaryRequests/>}
