@@ -9,9 +9,10 @@ import { useLoader } from "../contexts/LoaderContext";
 import Logs from "../tabs/Logs";
 import { useLogin } from "../contexts/LoginContext";
 import Regitration from "../tabs/Registration";
+import AnalaticsDashboard from "../tabs/AnalaticsDashboard";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("kyc");
+  const [activeTab, setActiveTab] = useState("analatics");
   const { showLoader, hideLoader } = useLoader();
   const { user } = useLogin();
 
@@ -32,6 +33,7 @@ const AdminDashboard = () => {
         {
           user?.role === "admin" ? (
             <main className="flex-1 overflow-y-auto p-8 space-y-6">
+              {activeTab === "analatics" && <AnalaticsDashboard/>}
               {activeTab === "kyc" && <KYCQueue />}
               {activeTab === "Regitration"  && <Regitration/>}
               {activeTab === "surveyor" && <SurveyorRequests/>}

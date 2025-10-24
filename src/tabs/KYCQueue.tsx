@@ -94,13 +94,13 @@ const KYCQueue = () => {
   }, [selectedUser]);
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-full flex items-center justify-center">
       <div className="text-center"><Loader2 className="w-10 h-10 text-slate-600 animate-spin mx-auto mb-3" /><p className="text-slate-600 text-sm font-medium">Loading requests...</p></div>
     </div>
   );
 
   if (error) return (
-    <div className="min-h-full bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-full flex items-center justify-center p-4">
       <div className="bg-white border border-red-200 rounded-xl p-8 text-center max-w-md shadow-sm">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-slate-900 mb-2">Error Loading Data</h3>
