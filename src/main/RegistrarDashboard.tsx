@@ -20,8 +20,8 @@ const AdminDashboard = () => {
   const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
 
   useEffect(()=>{
-    console.log(USER_API_URL);
-    console.log(BACKEND_FILE_URL);
+    console.log("user: ",USER_API_URL);
+    console.log("file: ",BACKEND_FILE_URL);
   },[]);
 
 
