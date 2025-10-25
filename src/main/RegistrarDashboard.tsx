@@ -19,10 +19,8 @@ const AdminDashboard = () => {
   const USER_API_URL = import.meta.env.VITE_USER_API_URL;
   const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
 
-  useEffect(()=>{
-    console.log("user: ",USER_API_URL);
-    console.log("file: ",BACKEND_FILE_URL);
-  },[]);
+  console.log("user: ",USER_API_URL);
+  console.log("file: ",BACKEND_FILE_URL);
 
 
   useEffect(()=>{
