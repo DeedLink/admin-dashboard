@@ -15,14 +15,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("analatics");
   const { showLoader, hideLoader } = useLoader();
   const { user } = useLogin();
-
-  const USER_API_URL = import.meta.env.VITE_USER_API_URL;
-  const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
-
-  console.log("user: ",USER_API_URL);
-  console.log("file: ",BACKEND_FILE_URL);
-
-
+  
   useEffect(()=>{
     showLoader();
     console.log(user);
