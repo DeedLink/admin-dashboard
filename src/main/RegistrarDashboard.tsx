@@ -16,6 +16,15 @@ const AdminDashboard = () => {
   const { showLoader, hideLoader } = useLoader();
   const { user } = useLogin();
 
+  const USER_API_URL = import.meta.env.VITE_USER_API_URL;
+  const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
+
+  useEffect(()=>{
+    console.log(USER_API_URL);
+    console.log(BACKEND_FILE_URL);
+  },[]);
+
+
   useEffect(()=>{
     showLoader();
     console.log(user);
