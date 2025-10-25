@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   frontend:
-    build: rasindudulshansiriwardhana/admin-web:latest
+    image: rasindudulshansiriwardhana/admin-web:latest
     container_name: admin-web
     ports:
       - "6002:80"

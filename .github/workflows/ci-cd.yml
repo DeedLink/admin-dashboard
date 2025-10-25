@@ -59,6 +59,6 @@ jobs:
               git reset --hard origin/main
             fi
 
-            docker compose pull
+            docker compose pull frontend
             docker compose down
             docker compose up -d --remove-orphans
