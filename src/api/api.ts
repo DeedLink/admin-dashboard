@@ -2,8 +2,8 @@ import axios, { type AxiosResponse } from "axios";
 import { getItem } from "../storage/storage";
 import type { User, VerifyKYCRequest } from "../types/types";
 
-const USER_API_URL = import.meta.env.VITE_USER_API_URL || "http://localhost:5000/api/users";
-const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL || "http://localhost:4000/file";
+const USER_API_URL = import.meta.env.VITE_USER_API_URL;
+const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
 
 const api = axios.create({
   baseURL: USER_API_URL,
