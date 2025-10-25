@@ -1,15 +1,42 @@
-FROM node:18-alpine AS build
+FROM node:20-alpine AS builder
+
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
-COPY package.json package-lock.json yarn.lock* ./
-RUN if [ -f yarn.lock ]; then yarn --frozen-lockfile; else npm ci; fi
+
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
 COPY . .
-RUN if [ -f package.json ] && grep -q "build" package.json; then npm run build --if-present; else echo "No build script found"; fi
 
-FROM nginx:stable-alpine AS production
-COPY --from=build /app/dist /usr/share/nginx/html
+# Build args for environment variables
+ARG VITE_USER_API_URL
+ARG VITE_DEED_API_URL
+ARG VITE_PINATA_API_URL
+ARG VITE_SURVEY_PLAN_API_URL
+ARG VITE_BACKEND_FILE_URL
+ARG VITE_PROPERTY_NFT_ADDRESS
+ARG VITE_FACTORY_ADDRESS
+ARG VITE_FRACTIONAL_ADDESS
+ARG VITE_ESCROW_FACTORY_ADDRESS
+ARG VITE_DEPLOYER_ADDRESS
 
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || true/
+# Set them as environment variables for Vite build
+ENV VITE_USER_API_URL=$VITE_USER_API_URL
+ENV VITE_DEED_API_URL=$VITE_DEED_API_URL
+ENV VITE_PINATA_API_URL=$VITE_PINATA_API_URL
+ENV VITE_SURVEY_PLAN_API_URL=$VITE_SURVEY_PLAN_API_URL
+ENV VITE_BACKEND_FILE_URL=$VITE_BACKEND_FILE_URL
+ENV VITE_PROPERTY_NFT_ADDRESS=$VITE_PROPERTY_NFT_ADDRESS
+ENV VITE_FACTORY_ADDRESS=$VITE_FACTORY_ADDRESS
+ENV VITE_FRACTIONAL_ADDESS=$VITE_FRACTIONAL_ADDESS
+ENV VITE_ESCROW_FACTORY_ADDRESS=$VITE_ESCROW_FACTORY_ADDRESS
+ENV VITE_DEPLOYER_ADDRESS=$VITE_DEPLOYER_ADDRESS
+
+RUN yarn build
+
+FROM nginx:alpine
+
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/dist /usr/share/nginx/html
+
 EXPOSE 80
-STOPSIGNAL SIGTERM
 CMD ["nginx", "-g", "daemon off;"]
