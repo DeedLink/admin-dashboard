@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
 import { getDeeds } from "../../api/api";
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend,
+  Tooltip
 } from "recharts";
 import type { IDeed } from "../../types/responseDeed";
-
-const COLORS = ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#6366F1"];
 
 const DeedCard = () => {
   const [deeds, setDeeds] = useState<IDeed[]>([]);
@@ -44,21 +38,6 @@ const DeedCard = () => {
     return acc;
   }, {});
 
-  const landTypeData = Object.entries(landTypeCounts).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  const deedTypeCounts = deeds.reduce((acc: Record<string, number>, deed) => {
-    const type = deed.deedType?.deedType || "Other";
-    acc[type] = (acc[type] || 0) + 1;
-    return acc;
-  }, {});
-
-  const deedTypeData = Object.entries(deedTypeCounts)
-    .slice(0, 5)
-    .map(([name, value]) => ({ name, value }));
-
   const registrationByDate = deeds.reduce((acc: Record<string, number>, deed) => {
     const date = new Date(deed.registrationDate).toISOString().split("T")[0];
     acc[date] = (acc[date] || 0) + 1;
@@ -73,7 +52,7 @@ const DeedCard = () => {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm">
       <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 text-center sm:text-left">
-        Deed Analytics Dashboard
+        Deed Analytics
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 text-center">

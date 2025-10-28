@@ -64,7 +64,7 @@ const UsersCard = () => {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm">
       <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 text-center sm:text-left">
-        User Analytics Dashboard
+        User Analytics
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 text-center">
