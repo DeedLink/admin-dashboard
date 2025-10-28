@@ -1,8 +1,10 @@
 import axios, { type AxiosResponse } from "axios";
 import { getItem } from "../storage/storage";
 import type { User, VerifyKYCRequest } from "../types/types";
+import type { IDeed } from "../types/responseDeed";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL;
+const DEED_API_URL = import.meta.env.VITE_DEED_API_URL;
 const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
 
 const api = axios.create({
@@ -129,5 +131,45 @@ export const registerDepartmentUser = async (
     walletAddress,
     role
   });
+  return res.data;
+};
+
+// Deed related api calls
+const deedApi = axios.create({
+  baseURL: DEED_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+deedApi.interceptors.request.use((config) => {
+  const token = getItem("local", "token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Get deeds (protected)
+export const getDeeds = async (): Promise<IDeed[]> => {
+  const res: AxiosResponse<any[]> = await deedApi.get('/');
+  return res.data;
+};
+
+// Get deeds by owner ID (protected)
+export const getDeedsByOwner = async (ownerId: string): Promise<IDeed[]> => {
+  const res: AxiosResponse<any[]> = await deedApi.get(`/owner/${ownerId}`);
+  return res.data;
+};
+
+// Get deed by ID (protected)
+export const getDeedById = async (deedId: string): Promise<any> => {
+  const res: AxiosResponse<any> = await deedApi.get(`/${deedId}`);
+  return res.data;
+};
+
+// Get deed by ID (protected)
+export const getDeedByDeedNumber = async (deedNumber: string): Promise<any> => {
+  const res: AxiosResponse<any> = await deedApi.get(`/deed/${deedNumber}`);
   return res.data;
 };
