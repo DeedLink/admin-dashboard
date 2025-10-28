@@ -42,7 +42,7 @@ const UsersCard = () => {
   const roleCounts = users.reduce((acc: Record<string, number>, user: any) => {
     const role =
       user.role === "user"
-        ? "General Public User"
+        ? "Public User"
         : user.role?.charAt(0).toUpperCase() + user.role.slice(1);
     acc[role] = (acc[role] || 0) + 1;
     return acc;
