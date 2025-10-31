@@ -19,23 +19,22 @@ const Registration = () => {
     showLoader();
     try {
       const users = await getUsers();
-
       const notaryUsers = users.filter((u) => u.role === "notary");
       const surveyorUsers = users.filter((u) => u.role === "surveyor");
       const ivslUsers = users.filter((u) => u.role === "IVSL");
 
       setStats({
         notary: {
-          verified: notaryUsers.filter((u) => u.kycStatus==="verified").length,
-          pending: notaryUsers.filter((u) => u.kycStatus==="pending").length,
+          verified: notaryUsers.filter((u) => u.kycStatus === "verified").length,
+          pending: notaryUsers.filter((u) => u.kycStatus === "pending").length,
         },
         surveyor: {
-          verified: surveyorUsers.filter((u) => u.kycStatus==="verified").length,
-          pending: surveyorUsers.filter((u) => u.kycStatus==="pending").length,
+          verified: surveyorUsers.filter((u) => u.kycStatus === "verified").length,
+          pending: surveyorUsers.filter((u) => u.kycStatus === "pending").length,
         },
         ivsl: {
-          verified: ivslUsers.filter((u) => u.kycStatus==="verified").length,
-          pending: ivslUsers.filter((u) => u.kycStatus==="pending").length,
+          verified: ivslUsers.filter((u) => u.kycStatus === "verified").length,
+          pending: ivslUsers.filter((u) => u.kycStatus === "pending").length,
         },
       });
     } catch {
@@ -61,7 +60,6 @@ const Registration = () => {
         formData.walletAddress.toLowerCase(),
         formData.role
       );
-
       showToast("User registered successfully!", "success");
       await fetchUserStats();
       return true;
@@ -78,28 +76,16 @@ const Registration = () => {
   }, []);
 
   return (
-    <div className="w-full min-h-screen text-white flex flex-col items-center justify-start px-6 py-10 bg-black">
-      <div className="w-full max-w-5xl space-y-8">
-        <h1 className="text-3xl font-bold text-center mb-8">
+    <div className="w-full min-h-screen bg-black text-white flex flex-col items-center px-4 py-0">
+      <div className="w-full max-w-6xl space-y-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-center tracking-wide">
           Department User Management
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard
-            title="Notaries"
-            count={stats.notary.verified}
-            pending={stats.notary.pending}
-          />
-          <StatsCard
-            title="Surveyors"
-            count={stats.surveyor.verified}
-            pending={stats.surveyor.pending}
-          />
-          <StatsCard
-            title="IVSL"
-            count={stats.ivsl.verified}
-            pending={stats.ivsl.pending}
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <StatsCard title="Notaries" count={stats.notary.verified} pending={stats.notary.pending} />
+          <StatsCard title="Surveyors" count={stats.surveyor.verified} pending={stats.surveyor.pending} />
+          <StatsCard title="IVSL" count={stats.ivsl.verified} pending={stats.ivsl.pending} />
         </div>
 
         <RegistrationForm onSubmit={handleRegistrationSubmit} />

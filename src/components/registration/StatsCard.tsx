@@ -6,16 +6,16 @@ interface StatsCardProps {
 
 const StatsCard = ({ title, count, pending }: StatsCardProps) => {
   return (
-    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700 shadow-lg transition-transform hover:scale-105">
-      <h3 className="text-sm font-medium text-gray-400 mb-3">{title}</h3>
-      <div className="flex justify-between items-end">
-        <div>
-          <p className="text-4xl font-bold text-white">{count}</p>
-          <p className="text-sm text-gray-500">Verified</p>
+    <div className="bg-white rounded-xl p-5 shadow-lg border border-gray-200 flex flex-col justify-between hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+      <h3 className="text-lg font-semibold text-gray-700 mb-3 text-center">{title}</h3>
+      <div className="flex justify-around items-center">
+        <div className="text-center">
+          <p className="text-3xl font-bold text-green-600">{count}</p>
+          <p className="text-sm text-gray-500 mt-1">Verified</p>
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-semibold text-gray-300">{pending}</p>
-          <p className="text-sm text-gray-500">Pending</p>
+        <div className="text-center">
+          <p className="text-3xl font-bold text-yellow-600">{pending}</p>
+          <p className="text-sm text-gray-500 mt-1">Pending</p>
         </div>
       </div>
     </div>
