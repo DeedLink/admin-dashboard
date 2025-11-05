@@ -19,11 +19,11 @@ const Header = () => {
       <button
         disabled={user?.role === "admin"}
         onClick={() => setIsPassOpen(true)}
-        className={`px-2 py-1 rounded-xl ${
-          user?.role === "admin" ? "bg-green-500 text-white" : "cursor-pointer hover:bg-gray-300 bg-gray-200 text-black"
+        className={`px-2 py-1 rounded-xl w-32 h-10 ${
+          user?.role === "admin" ? "bg-gray-500 text-white" : "cursor-pointer hover:bg-gray-300 bg-gray-200 text-black"
         }`}
       >
-        {user?.role === "admin" ? "Logged" : "Get Pass"}
+        {user?.role === "admin" ? "MFA Logged" : "Get Pass"}
       </button>
       <div className="flex items-center">
         {!account ? (
