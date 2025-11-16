@@ -5,7 +5,7 @@ import type { IDeed } from "../types/responseDeed";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL;
 const DEED_API_URL = import.meta.env.VITE_DEED_API_URL;
-const BACKEND_FILE_URL = import.meta.env.VITE_BACKEND_FILE_URL;
+const BACKEND_FILE_URL = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const api = axios.create({
   baseURL: USER_API_URL,
