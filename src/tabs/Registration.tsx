@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Activity, Gavel, MapPinned, ShieldCheck } from "lucide-react";
+import { Gavel, MapPinned, ShieldCheck } from "lucide-react";
 import { useLoader } from "../contexts/LoaderContext";
 import { useToast } from "../contexts/ToastContext";
 import { getUsers, registerDepartmentUser } from "../api/api";
@@ -80,12 +80,6 @@ const Registration = () => {
     fetchUserStats();
   }, []);
 
-  const totalDepartmentUsers = departmentUsers.length;
-  const verifiedDepartmentUsers = useMemo(
-    () => departmentUsers.filter((u) => u.kycStatus === "verified").length,
-    [departmentUsers]
-  );
-  const pendingDepartmentUsers = totalDepartmentUsers - verifiedDepartmentUsers;
   const recentInvites = useMemo(
     () =>
       departmentUsers
@@ -97,29 +91,6 @@ const Registration = () => {
         .slice(0, 6),
     [departmentUsers]
   );
-
-  const summaryChips = [
-    {
-      label: "Active Dept. Staff",
-      value: totalDepartmentUsers,
-      detail: `${verifiedDepartmentUsers} verified`,
-    },
-    {
-      label: "Pending Invites",
-      value: pendingDepartmentUsers,
-      detail: "Awaiting KYC / OTP",
-    },
-    {
-      label: "Roles Covered",
-      value: ["Notary", "Surveyor", "IVSL"].filter(
-        (role, idx) =>
-          [stats.notary.verified + stats.notary.pending,
-           stats.surveyor.verified + stats.surveyor.pending,
-           stats.ivsl.verified + stats.ivsl.pending][idx] > 0
-      ).length,
-      detail: "Active role types",
-    },
-  ];
 
   const roleCards = [
     {
