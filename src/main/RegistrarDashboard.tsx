@@ -10,6 +10,7 @@ import Logs from "../tabs/Logs";
 import { useLogin } from "../contexts/LoginContext";
 import Regitration from "../tabs/Registration";
 import AnalaticsDashboard from "../tabs/AnalaticsDashboard";
+import NFTTracker from "../tabs/NFTTracker";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("analatics");
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
           user?.role === "admin" ? (
             <main className="flex-1 overflow-y-auto p-8 space-y-6">
               {activeTab === "analatics" && <AnalaticsDashboard/>}
+              {activeTab === "nft-tracker" && <NFTTracker />}
               {activeTab === "kyc" && <KYCQueue />}
               {activeTab === "Regitration"  && <Regitration/>}
               {activeTab === "surveyor" && <SurveyorRequests/>}

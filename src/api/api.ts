@@ -2,9 +2,11 @@ import axios, { type AxiosResponse } from "axios";
 import { getItem } from "../storage/storage";
 import type { User, VerifyKYCRequest } from "../types/types";
 import type { IDeed } from "../types/responseDeed";
+import type { ITransaction } from "../types/transaction";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL;
 const DEED_API_URL = import.meta.env.VITE_DEED_API_URL;
+const TNX_API_URL = import.meta.env.VITE_TNX_API_URL;
 const BACKEND_FILE_URL = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const api = axios.create({
@@ -172,4 +174,27 @@ export const getDeedById = async (deedId: string): Promise<any> => {
 export const getDeedByDeedNumber = async (deedNumber: string): Promise<any> => {
   const res: AxiosResponse<any> = await deedApi.get(`/deed/${deedNumber}`);
   return res.data;
+};
+
+// Transaction related api calls
+const tnxApi = axios.create({
+  baseURL: TNX_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+tnxApi.interceptors.request.use((config) => {
+  const token = getItem("local", "token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const getTransactionsByDeedId = async (deedId: string): Promise<ITransaction[]> => {
+  const res: AxiosResponse<ITransaction[]> = await tnxApi.get(`/deed/${deedId}`, {
+    validateStatus: () => true,
+  });
+  return Array.isArray(res.data) ? res.data : [];
 };

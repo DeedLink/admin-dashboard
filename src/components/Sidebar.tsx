@@ -1,4 +1,4 @@
-import { ChartBar ,CircleUser, ShieldCheck, MapPin, FileSignature, Building2, Book } from "lucide-react";
+import { ChartBar ,CircleUser, ShieldCheck, MapPin, FileSignature, Building2, Book, GitBranch } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -7,6 +7,7 @@ interface SidebarProps {
 
 const navItems = [
   { id: "analatics", label: "Analytics Dashboard", icon: ChartBar },
+  { id: "nft-tracker", label: "NFT Tracker", icon: GitBranch },
   { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
   { id: "Regitration", label: "Registration", icon: CircleUser },
   { id: "surveyor", label: "Surveyor Requests", icon: MapPin },
