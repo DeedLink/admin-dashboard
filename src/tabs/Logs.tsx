@@ -1,303 +1,282 @@
-import { useEffect, useState } from "react";
-import { ethers, EventLog } from "ethers";
-import PropertyNFTABI from "../web3.0/abis/PropertyNFT.json";
-import FractionalTokenFactoryABI from "../web3.0/abis/FractionTokenFactory.json";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ethers } from "ethers";
+import { Activity, RefreshCcw, Blocks, Cpu, GaugeCircle, Zap } from "lucide-react";
 
-const PROPERTY_NFT_ADDRESS = import.meta.env.VITE_PROPERTY_NFT_ADDRESS as string;
-const FACTORY_ADDRESS = import.meta.env.VITE_FACTORY_ADDRESS as string;
-
-type LogEntry = {
-  event: string;
-  args: any;
-  txHash: string;
-  blockNumber: number;
-  blockHash: string;
-  transactionIndex: number;
-  logIndex: number;
-  timestamp?: number;
-  gasUsed?: string;
-  gasPrice?: string;
-  from?: string | null;
-  to?: string | null;
+type BlockEntry = {
+  number: number;
+  hash: string;
+  timestamp: number;
+  miner: string;
+  gasUsed: bigint;
+  gasLimit: bigint;
+  baseFeePerGas?: bigint;
+  difficulty?: bigint;
+  transactions: string[];
 };
 
-function replacer(_key: string, value: any) {
-  if (typeof value === "bigint") {
-    return value.toString();
-  }
-  return value;
-}
+const BLOCK_COUNT = 15;
+const REFRESH_INTERVAL = 15000;
 
 const Logs = () => {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [expandedLog, setExpandedLog] = useState<number | null>(null);
+  const [blocks, setBlocks] = useState<BlockEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  useEffect(() => {
-    if (!PROPERTY_NFT_ADDRESS || !FACTORY_ADDRESS) return;
-
+  const hydrateBlocks = useCallback(async () => {
     const provider = new ethers.BrowserProvider((window as any).ethereum);
+    try {
+      setLoading(true);
+      setError(null);
+      const latest = await provider.getBlockNumber();
+      const blockNumbers = Array.from({ length: BLOCK_COUNT }, (_, idx) => latest - idx).filter((n) => n >= 0);
+      const fetched = await Promise.all(blockNumbers.map(async (num) => provider.getBlock(num)));
 
-    let nftContract: ethers.Contract;
-    let factoryContract: ethers.Contract;
+      const normalized: BlockEntry[] = fetched
+        .filter((block): block is NonNullable<typeof block> => !!block)
+        .map((block) => ({
+          number: block.number,
+          hash: block.hash,
+          timestamp: block.timestamp,
+          miner: block.miner,
+          gasUsed: block.gasUsed,
+          gasLimit: block.gasLimit,
+          baseFeePerGas: block.baseFeePerGas,
+          difficulty: block.difficulty,
+          transactions: block.transactions.map((tx) => (typeof tx === "string" ? tx : tx.hash)),
+        }));
 
-    async function init() {
-      const signer = await provider.getSigner();
-      nftContract = new ethers.Contract(PROPERTY_NFT_ADDRESS, PropertyNFTABI.abi, signer);
-      factoryContract = new ethers.Contract(FACTORY_ADDRESS, FractionalTokenFactoryABI.abi, signer);
-
-      const latestBlock = await provider.getBlockNumber();
-      const fromBlock = Math.max(0, latestBlock - 2000);
-
-      const pastTransfers = await nftContract.queryFilter("Transfer", fromBlock, latestBlock);
-      const pastFractions = await factoryContract.queryFilter("FractionTokenCreated", fromBlock, latestBlock);
-
-      const formattedPast = await Promise.all([
-        ...pastTransfers.map(async (e) => {
-          const ev = e as EventLog;
-          const tx = await provider.getTransaction(ev.transactionHash);
-          const receipt = await provider.getTransactionReceipt(ev.transactionHash);
-          const block = await provider.getBlock(ev.blockNumber);
-          
-          return {
-            event: ev.eventName,
-            args: ev.args,
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-            blockHash: ev.blockHash,
-            transactionIndex: ev.transactionIndex,
-            logIndex: ev.index,
-            timestamp: block?.timestamp,
-            gasUsed: receipt?.gasUsed.toString(),
-            gasPrice: tx?.gasPrice?.toString(),
-            from: tx?.from,
-            to: tx?.to
-          };
-        }),
-        ...pastFractions.map(async (e) => {
-          const ev = e as EventLog;
-          const tx = await provider.getTransaction(ev.transactionHash);
-          const receipt = await provider.getTransactionReceipt(ev.transactionHash);
-          const block = await provider.getBlock(ev.blockNumber);
-          
-          return {
-            event: ev.eventName,
-            args: ev.args,
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-            blockHash: ev.blockHash,
-            transactionIndex: ev.transactionIndex,
-            logIndex: ev.index,
-            timestamp: block?.timestamp,
-            gasUsed: receipt?.gasUsed.toString(),
-            gasPrice: tx?.gasPrice?.toString(),
-            from: tx?.from,
-            to: tx?.to
-          };
-        })
-      ]);
-
-      setLogs(prev => [...formattedPast.reverse(), ...prev]);
-
-      nftContract.on("Transfer", async (from, to, tokenId, event) => {
-        const ev = event as EventLog;
-        const tx = await provider.getTransaction(ev.transactionHash);
-        const receipt = await provider.getTransactionReceipt(ev.transactionHash);
-        const block = await provider.getBlock(ev.blockNumber);
-        
-        setLogs(prev => [
-          {
-            event: ev.eventName,
-            args: { from, to, tokenId: tokenId.toString() },
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-            blockHash: ev.blockHash,
-            transactionIndex: ev.transactionIndex,
-            logIndex: ev.index,
-            timestamp: block?.timestamp,
-            gasUsed: receipt?.gasUsed.toString(),
-            gasPrice: tx?.gasPrice?.toString(),
-            from: tx?.from,
-            to: tx?.to
-          },
-          ...prev
-        ]);
-      });
-
-      factoryContract.on("FractionTokenCreated", async (propertyId, tokenAddress, event) => {
-        const ev = event as EventLog;
-        const tx = await provider.getTransaction(ev.transactionHash);
-        const receipt = await provider.getTransactionReceipt(ev.transactionHash);
-        const block = await provider.getBlock(ev.blockNumber);
-        
-        setLogs(prev => [
-          {
-            event: ev.eventName,
-            args: { propertyId: propertyId.toString(), tokenAddress },
-            txHash: ev.transactionHash,
-            blockNumber: ev.blockNumber,
-            blockHash: ev.blockHash,
-            transactionIndex: ev.transactionIndex,
-            logIndex: ev.index,
-            timestamp: block?.timestamp,
-            gasUsed: receipt?.gasUsed.toString(),
-            gasPrice: tx?.gasPrice?.toString(),
-            from: tx?.from,
-            to: tx?.to
-          },
-          ...prev
-        ]);
-      });
+      setBlocks(normalized);
+      setLastUpdated(new Date());
+    } catch (err: any) {
+      console.error("Failed to fetch blocks", err);
+      setError(err.message ?? "Failed to load blocks");
+    } finally {
+      setLoading(false);
     }
-
-    init();
-
-    return () => {
-      nftContract?.removeAllListeners();
-      factoryContract?.removeAllListeners();
-    };
   }, []);
 
-  const formatTimestamp = (timestamp?: number) => {
-    if (!timestamp) return "N/A";
-    return new Date(timestamp * 1000).toLocaleString();
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      if (mounted) await hydrateBlocks();
+    };
+    run();
+    const interval = setInterval(run, REFRESH_INTERVAL);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [hydrateBlocks]);
+
+  const sortedBlocks = useMemo(() => [...blocks].sort((a, b) => b.number - a.number), [blocks]);
+
+  const toggleBlock = (number: number) => {
+    setExpandedBlock((prev) => (prev === number ? null : number));
   };
 
-  const formatGas = (gas?: string) => {
-    if (!gas) return "N/A";
-    return parseInt(gas).toLocaleString();
+  const handleManualRefresh = () => {
+    hydrateBlocks();
   };
 
-  const formatGwei = (wei?: string) => {
-    if (!wei) return "N/A";
-    return (parseInt(wei) / 1e9).toFixed(4) + " Gwei";
-  };
-
-  const toggleExpand = (idx: number) => {
-    setExpandedLog(expandedLog === idx ? null : idx);
-  };
+  const totalTx = sortedBlocks.reduce((acc, block) => acc + block.transactions.length, 0);
+  const avgGas = sortedBlocks.length
+    ? sortedBlocks.reduce((acc, block) => acc + Number(block.gasUsed)) / sortedBlocks.length
+    : 0;
 
   return (
-    <div className="text-white p-4">
-      <h2 className="text-2xl font-bold mb-4">Blockchain Event Logs</h2>
-      <div className="mb-4 text-sm text-gray-400">
-        Total Events: {logs.length}
-      </div>
-      <div className="space-y-3 max-h-[700px] overflow-y-auto border border-gray-700 rounded-lg p-3">
-        {logs.length === 0 ? (
-          <p className="text-gray-400">No logs yet...</p>
-        ) : (
-          logs.map((log, idx) => (
-            <div key={idx} className="bg-gray-800 p-4 rounded-lg shadow border border-gray-700">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="font-bold text-lg text-blue-400">{log.event}</p>
-                  <p className="text-xs text-gray-500">
-                    {formatTimestamp(log.timestamp)}
-                  </p>
-                </div>
+    <div className="text-white p-6 space-y-6">
+      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="text-sm uppercase tracking-[0.4em] text-emerald-400/80">Network Health</p>
+          <h2 className="text-3xl font-semibold">Live Block Stream</h2>
+          <p className="text-sm text-white/60">Latest {BLOCK_COUNT} blocks pulled directly from your connected RPC.</p>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-white/60">
+          {loading ? (
+            <span className="inline-flex items-center gap-1 text-emerald-300">
+              <Activity className="animate-spin" size={14} /> Syncing…
+            </span>
+          ) : (
+            <span>
+              Updated {lastUpdated ? lastUpdated.toLocaleTimeString() : "just now"}
+            </span>
+          )}
+          <button
+            onClick={handleManualRefresh}
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3 py-1 text-white hover:border-emerald-400/60 hover:text-emerald-300 transition"
+          >
+            <RefreshCcw size={14} />
+            Refresh
+          </button>
+        </div>
+      </header>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          icon={<Blocks className="text-emerald-300" size={18} />}
+          title="Tracked Blocks"
+          value={sortedBlocks.length}
+          hint="Latest finalized"
+        />
+        <MetricCard
+          icon={<Cpu className="text-sky-300" size={18} />}
+          title="Avg. Gas Used"
+          value={avgGas ? `${(avgGas / 1e3).toFixed(0)}k` : "—"}
+          hint="per block"
+        />
+        <MetricCard
+          icon={<Zap className="text-amber-300" size={18} />}
+          title="Total Tx"
+          value={totalTx}
+          hint={`~${(totalTx / Math.max(sortedBlocks.length, 1)).toFixed(1)} / block`}
+        />
+        <MetricCard
+          icon={<GaugeCircle className="text-purple-300" size={18} />}
+          title="Base Fee"
+          value={
+            sortedBlocks[0]?.baseFeePerGas
+              ? `${Number(sortedBlocks[0].baseFeePerGas) / 1e9} gwei`
+              : "—"
+          }
+          hint="Latest head"
+        />
+      </section>
+
+      {error && (
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {sortedBlocks.map((block) => (
+          <div
+            key={block.hash}
+            className="rounded-2xl border border-white/10 bg-black/40 p-4 shadow-lg shadow-black/30"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Block</p>
+                <h3 className="text-2xl font-semibold text-emerald-300">#{block.number}</h3>
+                <p className="text-xs text-white/60">{formatTimestamp(block.timestamp)}</p>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-white/60">
+                <span>{block.transactions.length} txs</span>
+                <span>•</span>
+                <span>{formatPercentage(block.gasUsed, block.gasLimit)} gas</span>
                 <button
-                  onClick={() => toggleExpand(idx)}
-                  className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"
+                  onClick={() => toggleBlock(block.number)}
+                  className="rounded-full border border-white/10 px-3 py-1 text-xs hover:border-emerald-400/60 hover:text-emerald-300 transition"
                 >
-                  {expandedLog === idx ? "Show Less" : "Show More"}
+                  {expandedBlock === block.number ? "Hide" : "Inspect"}
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="bg-gray-900 p-3 rounded">
-                  <p className="font-semibold text-green-400 mb-2">Event Arguments:</p>
-                  <pre className="text-xs text-gray-300 whitespace-pre-wrap overflow-x-auto">
-                    {JSON.stringify(log.args, replacer, 2)}
-                  </pre>
-                </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+              <InfoRow label="Hash" value={block.hash} type="hash" />
+              <InfoRow label="Miner" value={block.miner} type="address" />
+              <InfoRow label="Gas Used" value={`${formatBigInt(block.gasUsed)} / ${formatBigInt(block.gasLimit)}`} />
+              <InfoRow
+                label="Base Fee"
+                value={block.baseFeePerGas ? `${Number(block.baseFeePerGas) / 1e9} gwei` : "—"}
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-gray-500">Block:</span>
-                    <span className="ml-2 text-yellow-400">#{log.blockNumber}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Log Index:</span>
-                    <span className="ml-2">{log.logIndex}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Tx Index:</span>
-                    <span className="ml-2">{log.transactionIndex}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Gas Used:</span>
-                    <span className="ml-2 text-orange-400">{formatGas(log.gasUsed)}</span>
-                  </div>
-                </div>
-
-                {expandedLog === idx && (
-                  <div className="space-y-2 mt-3 pt-3 border-t border-gray-700">
-                    <div>
-                      <span className="text-gray-500">Gas Price:</span>
-                      <span className="ml-2 text-purple-400">{formatGwei(log.gasPrice)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">From:</span>
-                      {log.from ? (
-                        <a
-                          href={`https://sepolia.etherscan.io/address/${log.from}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="ml-2 text-blue-300 hover:underline text-xs break-all"
-                        >
-                          {log.from}
-                        </a>
-                      ) : (
-                        <span className="ml-2 text-gray-500">N/A</span>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-gray-500">To:</span>
-                      {log.to ? (
-                        <a
-                          href={`https://sepolia.etherscan.io/address/${log.to}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="ml-2 text-blue-300 hover:underline text-xs break-all"
-                        >
-                          {log.to}
-                        </a>
-                      ) : (
-                        <span className="ml-2 text-gray-500">Contract Creation</span>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Block Hash:</span>
+            {expandedBlock === block.number && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50 mb-3">Transactions</p>
+                {block.transactions.length === 0 ? (
+                  <p className="text-sm text-white/60">No transactions.</p>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-auto pr-1">
+                    {block.transactions.map((tx) => (
                       <a
-                        href={`https://sepolia.etherscan.io/block/${log.blockHash}`}
+                        key={tx}
+                        href={`https://sepolia.etherscan.io/tx/${tx}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="ml-2 text-cyan-300 hover:underline text-xs break-all"
+                        className="text-xs font-mono text-emerald-300 hover:text-emerald-200 underline decoration-dotted"
                       >
-                        {log.blockHash}
+                        {tx}
                       </a>
-                    </div>
+                    ))}
                   </div>
                 )}
-
-                <div className="pt-2">
-                  <span className="text-gray-500">Transaction:</span>
-                  <a
-                    href={`https://sepolia.etherscan.io/tx/${log.txHash}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="ml-2 text-green-400 hover:underline text-xs break-all"
-                  >
-                    {log.txHash}
-                  </a>
-                </div>
               </div>
-            </div>
-          ))
-        )}
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
 export default Logs;
+
+const MetricCard = ({
+  icon,
+  title,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: number | string;
+  hint?: string;
+}) => (
+  <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-4">
+    <div className="flex items-center gap-3">
+      <div className="rounded-xl border border-white/10 bg-black/30 p-3">{icon}</div>
+      <div>
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">{title}</p>
+        <p className="text-2xl font-semibold mt-1">{value}</p>
+        {hint && <p className="text-xs text-white/50">{hint}</p>}
+      </div>
+    </div>
+  </div>
+);
+
+const InfoRow = ({ label, value, type }: { label: string; value: string; type?: "hash" | "address" }) => {
+  const isLink = type === "hash" || type === "address";
+  const href =
+    type === "hash"
+      ? `https://sepolia.etherscan.io/block/${value}`
+      : type === "address"
+      ? `https://sepolia.etherscan.io/address/${value}`
+      : undefined;
+
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-[0.2em] text-white/40">{label}</p>
+      {isLink ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-emerald-300 font-mono hover:underline break-all"
+        >
+          {value}
+        </a>
+      ) : (
+        <p className="text-sm text-white/80">{value}</p>
+      )}
+    </div>
+  );
+};
+
+const formatTimestamp = (timestamp: number) => {
+  return new Date(timestamp * 1000).toLocaleString();
+};
+
+const formatPercentage = (gasUsed: bigint, gasLimit: bigint) => {
+  if (!gasLimit) return "—";
+  const pct = Number(gasUsed) / Number(gasLimit);
+  return `${(pct * 100).toFixed(1)}%`;
+};
+
+const formatBigInt = (value: bigint) => {
+  return Number(value).toLocaleString();
+};
