@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search, Eye, Download, FileText, User as UserIcon, Mail, Wallet, X, Loader2, AlertCircle, Filter } from "lucide-react";
-import { listPendingKYC, verifyKYC, getFileUrl } from '../api/api';
+import { verifyKYC, getUsers } from '../api/api';
 import type { User } from '../types/types';
+
+const ipfs_microservice_url = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const KYCQueue = () => {
   const [kycRequests, setKycRequests] = useState<User[]>([]);
@@ -24,8 +26,10 @@ const KYCQueue = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await listPendingKYC();
-      setKycRequests(data);
+      // Fetch all users and filter to only show users with role "user"
+      const data = await getUsers();
+      const userRoleData = data.filter(user => user.role === "user");
+      setKycRequests(userRoleData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load KYC requests');
     } finally {
@@ -80,14 +84,15 @@ const KYCQueue = () => {
 
   useEffect(() => {
     if (selectedUser?.kycDocuments) {
-      const loadUrls = async () => {
-        const urls: { [key: string]: string } = {};
-        for (const [key, filename] of Object.entries(selectedUser.kycDocuments || {})) {
-          urls[key] = await getFileUrl(filename);
-        }
-        setFileUrls(urls);
-      };
-      loadUrls();
+      const urls: { [key: string]: string } = {};
+      for (const [key, filename] of Object.entries(selectedUser.kycDocuments || {})) {
+        urls[key] = filename && filename.startsWith("http")
+          ? filename
+          : filename
+          ? `${ipfs_microservice_url}/file/${filename}`
+          : "";
+      }
+      setFileUrls(urls);
     } else {
       setFileUrls({});
     }
@@ -163,13 +168,28 @@ const KYCQueue = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredRequests.map(user => (
+            {filteredRequests.map(user => {
+              const profileImage = user.profilePicture
+                ? user.profilePicture.startsWith("http")
+                  ? user.profilePicture
+                  : `${ipfs_microservice_url}/file/${user.profilePicture}`
+                : "";
+
+              return (
               <div key={user._id} className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-sm">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <UserIcon className="w-6 h-6 text-slate-600" />
-                    </div>
+                    {profileImage ? (
+                      <img 
+                        src={profileImage} 
+                        alt={user.name || "User"} 
+                        className="w-12 h-12 rounded-lg object-cover border border-slate-200"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <UserIcon className="w-6 h-6 text-slate-600" />
+                      </div>
+                    )}
                     <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${user.kycStatus === 'verified' ? 'bg-green-500' : user.kycStatus === 'rejected' ? 'bg-red-500' : 'bg-amber-500'}`}></div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -202,7 +222,8 @@ const KYCQueue = () => {
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 
