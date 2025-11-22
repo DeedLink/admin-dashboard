@@ -9,6 +9,7 @@ export interface User {
   kycDocumentHash?: string;
   kycStatus: "pending" | "verified" | "rejected";
   role: "user" | "registrar" | "admin" | "surveyor" | "notary" | "IVSL";
+  profilePicture?: string;
   createdAt: string;
   kycDocuments?: {
     nicFrontSide: string,
