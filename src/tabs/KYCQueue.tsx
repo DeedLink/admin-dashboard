@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search, Eye, Download, FileText, User as UserIcon, Mail, Wallet, X, Loader2, AlertCircle, Filter } from "lucide-react";
 import { verifyKYC, getUsers } from '../api/api';
 import type { User } from '../types/types';
+import { useAlert } from '../contexts/AlertContext';
 
 const ipfs_microservice_url = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const KYCQueue = () => {
+  const { showAlert } = useAlert();
   const [kycRequests, setKycRequests] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +45,9 @@ const KYCQueue = () => {
       await verifyKYC(userId, { status: 'verified' });
       await fetchKYCRequests();
       setSelectedUser(null);
-      alert('KYC verified successfully!');
+      showAlert('KYC verified successfully!', 'success');
     } catch (err) {
-      alert(`Failed to verify KYC: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      showAlert(`Failed to verify KYC: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
     } finally {
       setProcessingId(null);
     }
@@ -59,9 +61,9 @@ const KYCQueue = () => {
       setSelectedUser(null);
       setShowRejectModal(false);
       setRejectionReason('');
-      alert('KYC rejected successfully!');
+      showAlert('KYC rejected successfully!', 'success');
     } catch (err) {
-      alert(`Failed to reject KYC: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      showAlert(`Failed to reject KYC: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
     } finally {
       setProcessingId(null);
     }

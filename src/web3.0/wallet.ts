@@ -1,8 +1,10 @@
 import { BrowserProvider } from "ethers";
 
-export async function connectWallet() {
+export async function connectWallet(onAlert?: (message: string, type?: "success" | "error" | "warning" | "info") => void) {
   if (!(window as any).ethereum) {
-    alert("Please install MetaMask!");
+    if (onAlert) {
+      onAlert("Please install MetaMask!", "warning");
+    }
     return null;
   }
 

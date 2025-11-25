@@ -4,6 +4,7 @@ import { connectWallet } from "../web3.0/wallet";
 import { getItem, removeItem, setItem } from "../storage/storage";
 import { useToast } from "./ToastContext";
 import { useLogin } from "./LoginContext";
+import { useAlert } from "./AlertContext";
 
 interface WalletContextProps {
   account: string | null;
@@ -21,9 +22,10 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [signer, setSigner] = useState<JsonRpcSigner | null>(getItem("local", "signer"));
   const { showToast } = useToast();
   const { logout } = useLogin();
+  const { showAlert } = useAlert();
 
   const connect = async () => {
-    const res = await connectWallet();
+    const res = await connectWallet(showAlert);
     if (res) {
       setAccount(res.account);
       setProvider(res.provider);

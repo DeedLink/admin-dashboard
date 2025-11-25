@@ -3,10 +3,12 @@ import { addSigner, getRolesOf } from "../web3.0/contractService";
 import type { User } from "../types/types";
 import { getUsers } from "../api/api";
 import { Mail, Wallet, User as UserIcon, Calendar, UserCircle } from "lucide-react";
+import { useAlert } from "../contexts/AlertContext";
 
 const ipfs_microservice_url = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const IVSLRequests = () => {
+  const { showAlert } = useAlert();
   const [ivslUsers, setIvslUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,9 +49,9 @@ const IVSLRequests = () => {
       setProcessingAddress(address);
       await addSigner("IVSL", address);
       await fetchIVSLUsers();
-      alert(`Successfully added IVSL signer: ${address}`);
+      showAlert(`Successfully added IVSL signer: ${address}`, 'success');
     } catch (err) {
-      alert(`Failed to add signer: ${err instanceof Error ? err.message : "Unknown error"}`);
+      showAlert(`Failed to add signer: ${err instanceof Error ? err.message : "Unknown error"}`, 'error');
     } finally {
       setProcessingAddress(null);
     }

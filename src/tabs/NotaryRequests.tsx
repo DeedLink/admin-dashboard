@@ -3,10 +3,12 @@ import { addSigner, getRolesOf } from "../web3.0/contractService";
 import type { User } from "../types/types";
 import { getUsers } from "../api/api";
 import { Mail, Wallet, User as UserIcon, Calendar, UserCircle } from "lucide-react";
+import { useAlert } from "../contexts/AlertContext";
 
 const ipfs_microservice_url = import.meta.env.VITE_IPFS_MICROSERVICE_URL;
 
 const NotaryRequests = () => {
+  const { showAlert } = useAlert();
   const [notaries, setNotaries] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +50,9 @@ const NotaryRequests = () => {
       const tx = await addSigner("NOTARY", address);
       console.log("Signer added:", tx);
       await fetchNotaries();
-      alert(`Successfully added notary signer: ${address}`);
+      showAlert(`Successfully added notary signer: ${address}`, 'success');
     } catch (err) {
-      alert(`Failed to add signer: ${err instanceof Error ? err.message : "Unknown error"}`);
+      showAlert(`Failed to add signer: ${err instanceof Error ? err.message : "Unknown error"}`, 'error');
     } finally {
       setProcessingAddress(null);
     }
