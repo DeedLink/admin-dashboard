@@ -21,6 +21,8 @@ const UsersCard = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [activeKYCIndex, setActiveKYCIndex] = useState<number | null>(null);
+  const [activeRoleIndex, setActiveRoleIndex] = useState<number | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -129,10 +131,10 @@ const UsersCard = () => {
 
   return (
     <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-white/20 rounded-2xl p-6 shadow-xl backdrop-blur-md">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-white mb-1">User Analytics</h2>
-          <p className="text-white/60 text-sm">Comprehensive user insights</p>
+      <div className="flex items-center justify-between mb-6 min-w-0">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl font-bold text-white mb-1 truncate">User Analytics</h2>
+          <p className="text-white/60 text-sm truncate">Comprehensive user insights</p>
         </div>
         <button
           onClick={fetchUsers}
@@ -147,30 +149,30 @@ const UsersCard = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 border border-indigo-500/30 rounded-xl p-4">
-          <p className="text-white/70 text-xs font-medium mb-1">Total Users</p>
-          <p className="text-2xl font-bold text-white">{totalUsers}</p>
+        <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 border border-indigo-500/30 rounded-xl p-4 min-w-0">
+          <p className="text-white/70 text-xs font-medium mb-1 truncate">Total Users</p>
+          <p className="text-2xl font-bold text-white truncate">{totalUsers}</p>
         </div>
-        <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-4">
-          <p className="text-white/70 text-xs font-medium mb-1">Verified</p>
-          <p className="text-2xl font-bold text-white">{verifiedUsers}</p>
-          <p className="text-xs text-white/60 mt-1">{verificationRate}% rate</p>
+        <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 border border-green-500/30 rounded-xl p-4 min-w-0">
+          <p className="text-white/70 text-xs font-medium mb-1 truncate">Verified</p>
+          <p className="text-2xl font-bold text-white truncate">{verifiedUsers}</p>
+          <p className="text-xs text-white/60 mt-1 truncate">{verificationRate}% rate</p>
         </div>
-        <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-xl p-4">
-          <p className="text-white/70 text-xs font-medium mb-1">New This Week</p>
-          <p className="text-2xl font-bold text-white">{newUsers}</p>
+        <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border border-blue-500/30 rounded-xl p-4 min-w-0">
+          <p className="text-white/70 text-xs font-medium mb-1 truncate">New This Week</p>
+          <p className="text-2xl font-bold text-white truncate">{newUsers}</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 rounded-xl p-4">
-          <p className="text-white/70 text-xs font-medium mb-1">This Month</p>
-          <p className="text-2xl font-bold text-white">{newUsersThisMonth}</p>
+        <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 rounded-xl p-4 min-w-0">
+          <p className="text-white/70 text-xs font-medium mb-1 truncate">This Month</p>
+          <p className="text-2xl font-bold text-white truncate">{newUsersThisMonth}</p>
         </div>
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* KYC Status Chart */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-white mb-4">KYC Status</h3>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 min-w-0">
+          <h3 className="text-sm font-semibold text-white mb-4 truncate">KYC Status</h3>
           {kycStatusData.length > 0 ? (
             <div className="w-full h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -179,22 +181,42 @@ const UsersCard = () => {
                     data={kycStatusData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={60}
-                    innerRadius={30}
+                    outerRadius={activeKYCIndex === null ? 50 : 55}
+                    innerRadius={25}
                     dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
+                    activeIndex={activeKYCIndex ?? undefined}
+                    onMouseEnter={(_, index) => setActiveKYCIndex(index)}
+                    onMouseLeave={() => setActiveKYCIndex(null)}
                   >
                     {kycStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        style={{
+                          filter: activeKYCIndex === index ? 'brightness(1.3) drop-shadow(0 0 8px rgba(255,255,255,0.3))' : 'none',
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer'
+                        }}
+                      />
                     ))}
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.95)', 
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       borderRadius: '8px',
-                      color: '#fff'
+                      color: '#ffffff',
+                      padding: '8px 12px'
                     }}
+                    itemStyle={{ color: '#ffffff', fontSize: '13px', fontWeight: '500' }}
+                    labelStyle={{ color: '#ffffff', fontSize: '12px', fontWeight: '600' }}
+                    formatter={(value: number, name: string) => [`${value}`, name]}
+                  />
+                  <Legend 
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value: string, entry: any) => `${value}: ${entry.payload.value}`}
+                    wrapperStyle={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.8)' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -205,8 +227,8 @@ const UsersCard = () => {
         </div>
 
         {/* Users by Role */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-white mb-4">Users by Role</h3>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4 min-w-0">
+          <h3 className="text-sm font-semibold text-white mb-4 truncate">Users by Role</h3>
           {roleData.length > 0 ? (
             <div className="w-full h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -215,22 +237,42 @@ const UsersCard = () => {
                     data={roleData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={60}
-                    innerRadius={30}
+                    outerRadius={activeRoleIndex === null ? 50 : 55}
+                    innerRadius={25}
                     dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
+                    activeIndex={activeRoleIndex ?? undefined}
+                    onMouseEnter={(_, index) => setActiveRoleIndex(index)}
+                    onMouseLeave={() => setActiveRoleIndex(null)}
                   >
                     {roleData.map((_entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]}
+                        style={{
+                          filter: activeRoleIndex === index ? 'brightness(1.3) drop-shadow(0 0 8px rgba(255,255,255,0.3))' : 'none',
+                          transition: 'all 0.3s ease',
+                          cursor: 'pointer'
+                        }}
+                      />
                     ))}
                   </Pie>
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      backgroundColor: 'rgba(0, 0, 0, 0.95)', 
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       borderRadius: '8px',
-                      color: '#fff'
+                      color: '#ffffff',
+                      padding: '8px 12px'
                     }}
+                    itemStyle={{ color: '#ffffff', fontSize: '13px', fontWeight: '500' }}
+                    labelStyle={{ color: '#ffffff', fontSize: '12px', fontWeight: '600' }}
+                    formatter={(value: number, name: string) => [`${value}`, name]}
+                  />
+                  <Legend 
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value: string, entry: any) => `${value}: ${entry.payload.value}`}
+                    wrapperStyle={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.8)' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -242,8 +284,8 @@ const UsersCard = () => {
       </div>
 
       {/* Signup Trend */}
-      <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-white mb-4">Signup Trend (Last 7 Days)</h3>
+      <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4 min-w-0">
+        <h3 className="text-sm font-semibold text-white mb-4 truncate">Signup Trend (Last 7 Days)</h3>
         {trendData.length > 0 ? (
           <div className="w-full h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -252,6 +294,9 @@ const UsersCard = () => {
                   dataKey="date" 
                   tick={{ fontSize: 11, fill: 'rgba(255, 255, 255, 0.6)' }}
                   stroke="rgba(255, 255, 255, 0.2)"
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
                 />
                 <YAxis 
                   allowDecimals={false}
@@ -260,19 +305,22 @@ const UsersCard = () => {
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.95)', 
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
                     borderRadius: '8px',
-                    color: '#fff'
+                    color: '#ffffff',
+                    padding: '8px 12px'
                   }}
+                  itemStyle={{ color: '#ffffff', fontSize: '13px', fontWeight: '500' }}
+                  labelStyle={{ color: '#ffffff', fontSize: '12px', fontWeight: '600' }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="count" 
                   stroke="#4F46E5" 
                   strokeWidth={2}
-                  dot={{ fill: '#4F46E5', r: 4 }}
-                  activeDot={{ r: 6 }}
+                  dot={{ fill: '#4F46E5', r: 4, style: { cursor: 'pointer' } }}
+                  activeDot={{ r: 8, fill: '#6366F1', stroke: '#fff', strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
