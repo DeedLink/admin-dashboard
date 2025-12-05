@@ -121,19 +121,66 @@ export async function getMetadata(tokenId: number): Promise<{ ipfsHash: string; 
 
 // Generic role grant
 export async function addSigner(role: "SURVEYOR" | "NOTARY" | "IVSL", account: string) {
-  const nft = await getPropertyNFTContract();
-  
-  let roleHash: string;
-  if (role === "SURVEYOR") {
-    roleHash = await nft.SURVEYOR_ROLE();
-  } else if (role === "NOTARY") {
-    roleHash = await nft.NOTARY_ROLE();
-  } else {
-    roleHash = await nft.IVSL_ROLE();
-  }
+  try {
+    if (!account || !ethers.isAddress(account)) {
+      throw new Error("Invalid wallet address");
+    }
 
-  const tx = await nft.grantRole(roleHash, account);
-  return await tx.wait();
+    const nft = await getPropertyNFTContract();
+    
+    // Check if contract is deployed
+    const signer = await getSigner();
+    const provider = signer.provider;
+    if (provider) {
+      const code = await provider.getCode(PROPERTY_NFT_ADDRESS);
+      if (!code || code === "0x") {
+        throw new Error("Contract not deployed at the specified address. Please check your environment variables.");
+      }
+    }
+
+    let roleHash: string;
+    if (role === "SURVEYOR") {
+      roleHash = await nft.SURVEYOR_ROLE();
+    } else if (role === "NOTARY") {
+      roleHash = await nft.NOTARY_ROLE();
+    } else {
+      roleHash = await nft.IVSL_ROLE();
+    }
+
+    // Check if user already has the role
+    const hasRole = await nft.hasRole(roleHash, account);
+    if (hasRole) {
+      throw new Error(`Address already has ${role} role`);
+    }
+
+    // Estimate gas first to catch errors early
+    try {
+      await nft.grantRole.estimateGas(roleHash, account);
+    } catch (estimateError: any) {
+      if (estimateError?.code === "CALL_EXCEPTION" || estimateError?.code === "UNPREDICTABLE_GAS_LIMIT") {
+        throw new Error("Transaction would fail. You may not have permission to grant roles or the contract may be in an invalid state.");
+      }
+      throw estimateError;
+    }
+
+    const tx = await nft.grantRole(roleHash, account);
+    return await tx.wait();
+  } catch (error: any) {
+    // Provide more user-friendly error messages
+    if (error?.code === -32603 || error?.message?.includes("Internal JSON-RPC error")) {
+      throw new Error("Transaction failed. Please ensure: 1) You have admin permissions, 2) The contract is deployed, 3) You have sufficient funds for gas.");
+    }
+    if (error?.code === "ACTION_REJECTED" || error?.code === 4001) {
+      throw new Error("Transaction was rejected by user");
+    }
+    if (error?.code === "INSUFFICIENT_FUNDS" || error?.code === -32000) {
+      throw new Error("Insufficient funds for gas fees");
+    }
+    if (error?.message) {
+      throw error;
+    }
+    throw new Error(`Failed to add signer: ${error?.toString() || "Unknown error"}`);
+  }
 }
 
 // Check if a wallet has a specific role
