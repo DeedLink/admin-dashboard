@@ -84,12 +84,6 @@ const DeedCard = () => {
     .slice(-7)
     .map(([date, count]) => ({ date: formatDate(date), count }));
 
-  // Calculate average area if available
-  const deedsWithArea = deeds.filter(d => d.area);
-  const averageArea = deedsWithArea.length > 0
-    ? (deedsWithArea.reduce((sum, d) => sum + (d.area || 0), 0) / deedsWithArea.length).toFixed(2)
-    : 0;
-
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 border border-white/20 rounded-2xl p-6 shadow-xl">
@@ -176,7 +170,6 @@ const DeedCard = () => {
                     outerRadius={activeLandTypeIndex === null ? 50 : 55}
                     innerRadius={25}
                     dataKey="value"
-                    activeIndex={activeLandTypeIndex ?? undefined}
                     onMouseEnter={(_, index) => setActiveLandTypeIndex(index)}
                     onMouseLeave={() => setActiveLandTypeIndex(null)}
                   >
@@ -253,7 +246,7 @@ const DeedCard = () => {
                     radius={[0, 4, 4, 0]}
                     style={{ cursor: 'pointer' }}
                   >
-                    {landTypeData.map((entry, index) => (
+                    {landTypeData.map((_entry, index) => (
                       <Cell 
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}

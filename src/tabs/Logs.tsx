@@ -34,17 +34,22 @@ const Logs = () => {
       const fetched = await Promise.all(blockNumbers.map(async (num) => provider.getBlock(num)));
 
       const normalized: BlockEntry[] = fetched
-        .filter((block): block is NonNullable<typeof block> => !!block)
+        .filter((block): block is NonNullable<typeof block> => !!block && !!block.hash)
         .map((block) => ({
           number: block.number,
-          hash: block.hash,
+          hash: block.hash!,
           timestamp: block.timestamp,
           miner: block.miner,
           gasUsed: block.gasUsed,
           gasLimit: block.gasLimit,
-          baseFeePerGas: block.baseFeePerGas,
-          difficulty: block.difficulty,
-          transactions: block.transactions.map((tx) => (typeof tx === "string" ? tx : tx.hash)),
+          baseFeePerGas: block.baseFeePerGas ?? undefined,
+          difficulty: block.difficulty ?? undefined,
+          transactions: block.transactions.map((tx) => {
+            if (typeof tx === "string") {
+              return tx;
+            }
+            return (tx as { hash: string }).hash;
+          }),
         }));
 
       setBlocks(normalized);
@@ -82,7 +87,7 @@ const Logs = () => {
 
   const totalTx = sortedBlocks.reduce((acc, block) => acc + block.transactions.length, 0);
   const avgGas = sortedBlocks.length
-    ? sortedBlocks.reduce((acc, block) => acc + Number(block.gasUsed)) / sortedBlocks.length
+    ? sortedBlocks.reduce((acc, block) => acc + Number(block.gasUsed), 0) / sortedBlocks.length
     : 0;
 
   return (

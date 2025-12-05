@@ -5,8 +5,6 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -184,7 +182,6 @@ const UsersCard = () => {
                     outerRadius={activeKYCIndex === null ? 50 : 55}
                     innerRadius={25}
                     dataKey="value"
-                    activeIndex={activeKYCIndex ?? undefined}
                     onMouseEnter={(_, index) => setActiveKYCIndex(index)}
                     onMouseLeave={() => setActiveKYCIndex(null)}
                   >
@@ -240,7 +237,6 @@ const UsersCard = () => {
                     outerRadius={activeRoleIndex === null ? 50 : 55}
                     innerRadius={25}
                     dataKey="value"
-                    activeIndex={activeRoleIndex ?? undefined}
                     onMouseEnter={(_, index) => setActiveRoleIndex(index)}
                     onMouseLeave={() => setActiveRoleIndex(null)}
                   >
