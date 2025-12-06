@@ -3,6 +3,19 @@ import { getItem } from "../storage/storage";
 import type { User, VerifyKYCRequest } from "../types/types";
 import type { IDeed } from "../types/responseDeed";
 import type { ITransaction } from "../types/transaction";
+import type {
+  RegistrationFeeDefinition,
+  RegistrationFeesResponse,
+  RegistrationFeeDefinitionCreate,
+  RegistrationFeeDefinitionUpdate,
+  StampFeeTierDefinition,
+  StampFeeTierDefinitionCreate,
+  StampFeeTierDefinitionUpdate,
+  AllStampFeeTiersResponse,
+  StampFeeTiersResponse,
+  CalculateStampFeeRequest,
+  CalculateStampFeeResponse,
+} from "../types/definitions";
 
 const USER_API_URL = import.meta.env.VITE_USER_API_URL;
 const DEED_API_URL = import.meta.env.VITE_DEED_API_URL;
@@ -197,4 +210,92 @@ export const getTransactionsByDeedId = async (deedId: string): Promise<ITransact
     validateStatus: () => true,
   });
   return Array.isArray(res.data) ? res.data : [];
+};
+
+// -------------------- Definitions Service API Calls --------------------
+const DEFINITIONS_API_URL = import.meta.env.VITE_DEFINITIONS_SERVICE_URL || "http://localhost:8000";
+
+const definitionsApi = axios.create({
+  baseURL: DEFINITIONS_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Registration Fees
+export const getRegistrationFees = async (): Promise<RegistrationFeesResponse> => {
+  const res: AxiosResponse<RegistrationFeesResponse> = await definitionsApi.get("/registration-fees");
+  return res.data;
+};
+
+export const getAllRegistrationFeeDefinitions = async (): Promise<RegistrationFeeDefinition[]> => {
+  const res: AxiosResponse<RegistrationFeeDefinition[]> = await definitionsApi.get("/registration-fees/all");
+  return res.data;
+};
+
+export const getRegistrationFeeById = async (feeId: string): Promise<RegistrationFeeDefinition> => {
+  const res: AxiosResponse<RegistrationFeeDefinition> = await definitionsApi.get(`/registration-fees/${feeId}`);
+  return res.data;
+};
+
+export const createRegistrationFee = async (fee: RegistrationFeeDefinitionCreate): Promise<RegistrationFeeDefinition> => {
+  const res: AxiosResponse<RegistrationFeeDefinition> = await definitionsApi.post("/registration-fees", fee);
+  return res.data;
+};
+
+export const updateRegistrationFee = async (
+  feeId: string,
+  fee: RegistrationFeeDefinitionUpdate
+): Promise<RegistrationFeeDefinition> => {
+  const res: AxiosResponse<RegistrationFeeDefinition> = await definitionsApi.put(`/registration-fees/${feeId}`, fee);
+  return res.data;
+};
+
+export const deleteRegistrationFee = async (feeId: string): Promise<{ detail: string }> => {
+  const res: AxiosResponse<{ detail: string }> = await definitionsApi.delete(`/registration-fees/${feeId}`);
+  return res.data;
+};
+
+// Stamp Fee Tiers
+export const getAllStampFeeTiers = async (): Promise<AllStampFeeTiersResponse> => {
+  const res: AxiosResponse<AllStampFeeTiersResponse> = await definitionsApi.get("/stamp-fee-tiers");
+  return res.data;
+};
+
+export const getStampFeeTiersByType = async (transactionType: string): Promise<StampFeeTiersResponse> => {
+  const res: AxiosResponse<StampFeeTiersResponse> = await definitionsApi.get(`/stamp-fee-tiers/${transactionType}`);
+  return res.data;
+};
+
+export const getAllStampFeeTierDefinitions = async (): Promise<StampFeeTierDefinition[]> => {
+  const res: AxiosResponse<StampFeeTierDefinition[]> = await definitionsApi.get("/stamp-fee-tiers/all");
+  return res.data;
+};
+
+export const getStampFeeTierById = async (tierId: number): Promise<StampFeeTierDefinition> => {
+  const res: AxiosResponse<StampFeeTierDefinition> = await definitionsApi.get(`/stamp-fee-tiers/tier/${tierId}`);
+  return res.data;
+};
+
+export const createStampFeeTier = async (tier: StampFeeTierDefinitionCreate): Promise<StampFeeTierDefinition> => {
+  const res: AxiosResponse<StampFeeTierDefinition> = await definitionsApi.post("/stamp-fee-tiers", tier);
+  return res.data;
+};
+
+export const updateStampFeeTier = async (
+  tierId: number,
+  tier: StampFeeTierDefinitionUpdate
+): Promise<StampFeeTierDefinition> => {
+  const res: AxiosResponse<StampFeeTierDefinition> = await definitionsApi.put(`/stamp-fee-tiers/tier/${tierId}`, tier);
+  return res.data;
+};
+
+export const deleteStampFeeTier = async (tierId: number): Promise<{ detail: string }> => {
+  const res: AxiosResponse<{ detail: string }> = await definitionsApi.delete(`/stamp-fee-tiers/tier/${tierId}`);
+  return res.data;
+};
+
+export const calculateStampFee = async (request: CalculateStampFeeRequest): Promise<CalculateStampFeeResponse> => {
+  const res: AxiosResponse<CalculateStampFeeResponse> = await definitionsApi.post("/calculate-stamp-fee", request);
+  return res.data;
 };
