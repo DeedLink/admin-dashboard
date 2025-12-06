@@ -12,6 +12,7 @@ import Regitration from "../tabs/Registration";
 import AnalaticsDashboard from "../tabs/AnalaticsDashboard";
 import NFTTracker from "../tabs/NFTTracker";
 import Payments from "../tabs/Payments";
+import DefinitionsManagement from "../tabs/DefinitionsManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("analatics");
@@ -38,6 +39,7 @@ const AdminDashboard = () => {
               {activeTab === "analatics" && <AnalaticsDashboard/>}
               {activeTab === "nft-tracker" && <NFTTracker />}
               {activeTab === "payments" && <Payments />}
+              {activeTab === "definitions" && <DefinitionsManagement />}
               {activeTab === "kyc" && <KYCQueue />}
               {activeTab === "Regitration"  && <Regitration/>}
               {activeTab === "surveyor" && <SurveyorRequests/>}
