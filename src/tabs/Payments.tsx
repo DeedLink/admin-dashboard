@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { getDeeds, getTransactionsByDeedId } from "../api/api";
 import type { IDeed } from "../types/responseDeed";
 import type { ITransaction } from "../types/transaction";
-import { useLoader } from "../contexts/LoaderContext";
 import { 
   GOVERNMENT_FEE, 
   IVSL_FEE, 
@@ -31,17 +30,17 @@ const Payments = () => {
   const [deeds, setDeeds] = useState<IDeed[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const { showLoader, hideLoader } = useLoader();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    
     const fetchData = async () => {
-      showLoader();
       setLoading(true);
       try {
         const deedsData = await getDeeds();
         setDeeds(deedsData || []);
 
-        // Fetch transactions for all deeds in parallel
         const allTransactions: ITransaction[] = [];
         const transactionPromises = (deedsData || [])
           .filter((deed) => deed._id)
@@ -54,16 +53,16 @@ const Payments = () => {
           }
         });
         setTransactions(allTransactions);
+        hasFetched.current = true;
       } catch (err) {
         console.error("Failed to fetch data:", err);
       } finally {
         setLoading(false);
-        hideLoader();
       }
     };
 
     fetchData();
-  }, [showLoader, hideLoader]);
+  }, []);
 
   // Calculate stamp fee for a transaction
   const calculateStampFee = (tx: ITransaction) => {
